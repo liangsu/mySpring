@@ -12,4 +12,6 @@ public interface Resource extends InputStreamSource{
 	File getFile() throws IOException;
 	
 	String getFilename() throws IOException;
+	
+	String getDescription();
 }

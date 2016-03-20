@@ -6,6 +6,8 @@ import java.io.InputStream;
 
 public class UrlResource extends AbstractResource{
 
+	private String fileurl;
+	
 	@Override
 	public boolean isOpen() {
 		// TODO Auto-generated method stub
@@ -24,4 +26,8 @@ public class UrlResource extends AbstractResource{
 		return null;
 	}
 
+	@Override
+	public String getDescription() {
+		return "[url: "+fileurl+"]";
+	}
 }

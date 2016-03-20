@@ -18,4 +18,9 @@ public abstract class AbstractResource implements Resource{
 	public String getFilename() throws IOException {
 		return getFile().getName();
 	}
+	
+	@Override
+	public String getDescription() {
+		return null;
+	}
 }

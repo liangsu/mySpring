@@ -10,11 +10,10 @@ import spring.ls.util.ClassUtils;
 public class ClassPathResource extends AbstractResource{
 
 	private String filepath;
-	private ClassLoader classLoader;
+	private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 	
 	public ClassPathResource(String filepath) {
 		this.filepath = filepath;
-		classLoader = ClassUtils.getDefaultClassLoader();
 	}
 	
 	@Override
@@ -29,15 +28,21 @@ public class ClassPathResource extends AbstractResource{
 			classPath = classLoader.getResource(filepath).toURI().getSchemeSpecificPart();
 			classPath = classPath.substring(1);
 		} catch (Exception e) {
-			throw new FileNotFoundException(filepath);
+			throw new FileNotFoundException(getDescription());
 		}
 		File file = new File(classPath);
+		
 		return file;
 	}
 
 	@Override
 	public InputStream getInputStream() {
 		return classLoader.getResourceAsStream(filepath);
+	}
+	
+	@Override
+	public String getDescription() {
+		return "[classpath: "+filepath+"]";
 	}
 
 	public void setClassLoader(ClassLoader classLoader) {

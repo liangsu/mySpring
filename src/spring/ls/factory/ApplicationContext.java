@@ -1,5 +1,7 @@
 package spring.ls.factory;
 
+import spring.ls.core.io.ClassPathResource;
+
 public class ApplicationContext extends AbstractBeanFactory implements BeanFactory<Object>{
 
 	private AnnotationBeanFactory annotationBeanFactory;
@@ -7,22 +9,12 @@ public class ApplicationContext extends AbstractBeanFactory implements BeanFacto
 	
 	public ApplicationContext() {
 		annotationBeanFactory = new AnnotationBeanFactory();
-		xmlBeanFactory =new XmlBeanFactory();
-		try {
-			super.initBeans();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		xmlBeanFactory =new XmlBeanFactory(new ClassPathResource("beans.properties"));
 	}
 	
-	@Override
-	public void loadBeans() {
-		try {
-			xmlBeanFactory.loadBeans();
-			annotationBeanFactory.loadBeans();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public ApplicationContext(String fileLocation) {
+		annotationBeanFactory = new AnnotationBeanFactory();
+		xmlBeanFactory =new XmlBeanFactory(new ClassPathResource(fileLocation));
 	}
 
 }

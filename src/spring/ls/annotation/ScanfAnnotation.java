@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import spring.ls.bean.BeanDefinition;
+import spring.ls.core.env.Environment;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.PathUtil;
 
@@ -14,13 +15,15 @@ import spring.ls.util.PathUtil;
  * @author lenovo
  *
  */
-public class ScanfAnnotation {
+public class ScanfAnnotation{
+	private Environment environment;
 	private String basePackage;
 	private String filePath;
 	private List<BeanDefinition> beanDefinitionsHoldersList = new ArrayList<BeanDefinition>();
 	private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 	
-	public ScanfAnnotation(String basePath){
+	public ScanfAnnotation(Environment environment,String basePath){
+		this.environment = environment;
 		this.basePackage = basePath;
 		filePath = PathUtil.getProjectPath() + File.separator + basePath.replace(".", File.separator);
 		scanfPackage(filePath,basePackage);
@@ -102,7 +105,7 @@ public class ScanfAnnotation {
 	}
 
 	public static void main(String[] args) {
-		ScanfAnnotation sa = new ScanfAnnotation("spring.ls");
+		ScanfAnnotation sa = new ScanfAnnotation(null,"spring.ls");
 		BeanDefinition[] beanDefinitionsHolders = sa.getBeanDefinitions();
 		for (BeanDefinition beanDefinitionsHolder : beanDefinitionsHolders) {
 			System.out.println("name:"+beanDefinitionsHolder.getName());
@@ -110,4 +113,12 @@ public class ScanfAnnotation {
 			System.out.println("scope:"+beanDefinitionsHolder.getScope());
 		}
 	}
+
+	public void loadBeans() throws Exception {
+		BeanDefinition[] beanDefinitions = this.getBeanDefinitions();
+		for (BeanDefinition beanDefinition : beanDefinitions) {
+			environment.registerBeanDefinition(beanDefinition);
+		}
+	}
+
 }

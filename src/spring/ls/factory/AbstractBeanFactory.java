@@ -3,31 +3,43 @@ package spring.ls.factory;
 import java.util.HashMap;
 import java.util.Map;
 
-import spring.ls.annotation.ScanfAnnotation;
 import spring.ls.bean.BeanDefinition;
 import spring.ls.core.ParseBeanDefinitionsHolder;
+import spring.ls.core.env.Environment;
 
-public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>{
+public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,Environment{
 
-	private static Map<String, Object> beans = null;
-	private static Map<String, Object> singletonBeans = null;
+	private static Map<String, Object> beans = new HashMap<String, Object>();
+	private static Map<String, Object> singletonBeans = new HashMap<String, Object>();
 	private static Map<String, Object> cacheBeans = new HashMap<String, Object>(4);
 	
 	public AbstractBeanFactory(){
 		
 	}
 	
-	protected void initBeans() throws Exception{
-		if(beans == null){
-			beans = new HashMap<String, Object>();
-		}
-		if(singletonBeans == null){
-			singletonBeans = new HashMap<String, Object>();
-		}
-		loadBeans();
+//	/**
+//	 * 根据BeanDefinition生成bean,并加入到bean容器中
+//	 * @throws Exception
+//	 */
+//	public void loadBeans() throws Exception{
+//		BeanDefinition[] beanDefinitions = generateBeanDefinitions();
+//		for (BeanDefinition beanDefinition : beanDefinitions) {
+//			Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
+//			registerBean(beanDefinition.getName(), instance, beanDefinition.getScope());
+//		}
+//	}
+	
+	@Override
+	public void registerBeanDefinition(BeanDefinition beanDefinition) throws Exception {
+		Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
+		registerBean(beanDefinition.getName(), instance, beanDefinition.getScope());
 	}
 	
-	public abstract void loadBeans() throws Exception;
+//	/**
+//	 * 生成bean的定义,在子类中实现，在{@link #loadBeans()}中调用
+//	 * @return
+//	 */
+//	public abstract BeanDefinition[] generateBeanDefinitions();
 	
 	/**
 	 * 注册bean
@@ -36,7 +48,7 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 	 * @param scope
 	 * @throws Exception
 	 */
-	protected void registerBean(String name,Object instance,String scope) throws Exception{
+	private void registerBean(String name,Object instance,String scope) throws Exception{
 		if(scope.equals(SCOPE_PROTOTYPE)){
 			beans.put(name, instance);
 		}else if(scope.equals(SCOPE_SINGLETON)){
@@ -44,26 +56,7 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 		}
 	}
 	
-	protected void addBean(Class clazz,String scope) throws Exception{
-		String name = clazz.getSimpleName();
-		name = name.toLowerCase().charAt(0) + name.substring(1);
-		Object obj = null;
-		
-		try {
-			obj = clazz.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		
-		if(obj == null){
-			throw new Exception(name + "初始化失败!");
-		}
-		
-		registerBean(name, obj, scope);
-	}
-	
+	@Override
 	public Object getBean(String alias){
 		Object obj = null;
 		

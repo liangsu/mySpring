@@ -2,12 +2,16 @@ package spring.ls.core;
 
 import spring.ls.bean.BeanDefinition;
 
+/**
+ * 用于将{@code BeanDefinition}解析实例的类
+ * @author Administrator
+ */
 public class ParseBeanDefinitionsHolder {
 
 	public static Object parse(BeanDefinition beanDefinition){
 		Object obj = null;
 		
-		Class clazz = beanDefinition.getBeanClass();
+		Class<?> clazz = beanDefinition.getBeanClass();
 		try {
 			obj = clazz.newInstance();
 		} catch (InstantiationException e) {
