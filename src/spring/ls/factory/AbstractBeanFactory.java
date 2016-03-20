@@ -17,29 +17,11 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 		
 	}
 	
-//	/**
-//	 * 根据BeanDefinition生成bean,并加入到bean容器中
-//	 * @throws Exception
-//	 */
-//	public void loadBeans() throws Exception{
-//		BeanDefinition[] beanDefinitions = generateBeanDefinitions();
-//		for (BeanDefinition beanDefinition : beanDefinitions) {
-//			Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
-//			registerBean(beanDefinition.getName(), instance, beanDefinition.getScope());
-//		}
-//	}
-	
 	@Override
 	public void registerBeanDefinition(BeanDefinition beanDefinition) throws Exception {
 		Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
 		registerBean(beanDefinition.getName(), instance, beanDefinition.getScope());
 	}
-	
-//	/**
-//	 * 生成bean的定义,在子类中实现，在{@link #loadBeans()}中调用
-//	 * @return
-//	 */
-//	public abstract BeanDefinition[] generateBeanDefinitions();
 	
 	/**
 	 * 注册bean

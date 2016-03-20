@@ -8,7 +8,7 @@ import spring.ls.factory.BeanFactory;
 public class MainClass {
 
 	public static void main(String[] args) {
-		BeanFactory factory = new ApplicationContext("beans.properties");
+		BeanFactory factory = new ApplicationContext("beans.xml");
 		SayHello sayHello = (SayHello) factory.getBean("sayHello");
 		sayHello.say();
 		Dog dog = (Dog) factory.getBean("dog");
