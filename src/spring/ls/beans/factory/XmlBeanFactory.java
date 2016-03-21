@@ -1,4 +1,4 @@
-package spring.ls.factory;
+package spring.ls.beans.factory;
 
 import spring.ls.core.io.Resource;
 import spring.ls.io.XmlBeanDefinitionReader;

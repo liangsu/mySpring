@@ -2,16 +2,16 @@ package spring.ls.test;
 
 import org.junit.Test;
 
-import spring.ls.bean.SayHello;
+import spring.ls.beans.SayHello;
+import spring.ls.beans.factory.BeanFactory;
+import spring.ls.beans.factory.XmlBeanFactory;
 import spring.ls.core.io.ClassPathResource;
-import spring.ls.factory.BeanFactory;
-import spring.ls.factory.XmlBeanFactory;
 
 public class TestSomething {
 
 	@Test
 	public void test1(){
-		BeanFactory factory = new XmlBeanFactory(new ClassPathResource("beans.properties"));
+		BeanFactory factory = new XmlBeanFactory(new ClassPathResource("beans.xml"));
 		SayHello hello = (SayHello) factory.getBean("sayHello");
 		hello.say();
 	}

@@ -1,4 +1,4 @@
-package spring.ls.factory;
+package spring.ls.beans.factory;
 
 public class SingletonBeanFactory {
 

@@ -1,14 +1,14 @@
-package spring.ls.factory;
+package spring.ls.beans.factory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import spring.ls.bean.BeanDefinition;
+import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.core.ParseBeanDefinitionsHolder;
-import spring.ls.core.env.Environment;
 
-public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,Environment{
-
+public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,BeanDefinitionRegistry{
+	private static Map<String, Object> beanDefinitionMap = new HashMap<String, Object>();
 	private static Map<String, Object> beans = new HashMap<String, Object>();
 	private static Map<String, Object> singletonBeans = new HashMap<String, Object>();
 	private static Map<String, Object> cacheBeans = new HashMap<String, Object>(4);
@@ -18,9 +18,11 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 	}
 	
 	@Override
-	public void registerBeanDefinition(BeanDefinition beanDefinition) throws Exception {
+	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws Exception {
+		beanDefinitionMap.put(beanName, beanDefinition);
+		
 		Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
-		registerBean(beanDefinition.getName(), instance, beanDefinition.getScope());
+		registerBean(beanName, instance, beanDefinition.getScope());
 	}
 	
 	/**

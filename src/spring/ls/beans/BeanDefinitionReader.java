@@ -1,4 +1,4 @@
-package spring.ls.bean;
+package spring.ls.beans;
 
 import spring.ls.core.io.Resource;
 

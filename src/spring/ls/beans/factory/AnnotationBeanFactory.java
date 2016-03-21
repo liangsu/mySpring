@@ -1,4 +1,4 @@
-package spring.ls.factory;
+package spring.ls.beans.factory;
 
 import spring.ls.annotation.ScanfAnnotation;
 
@@ -8,7 +8,7 @@ public class AnnotationBeanFactory extends AbstractBeanFactory {
 	
 	public AnnotationBeanFactory(){
 		try {
-			scanfAnnotation.loadBeans();
+			scanfAnnotation.register();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

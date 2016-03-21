@@ -1,6 +1,6 @@
 package spring.ls.core;
 
-import spring.ls.bean.BeanDefinition;
+import spring.ls.beans.factory.config.BeanDefinition;
 
 /**
  * 用于将{@code BeanDefinition}解析实例的类
@@ -21,7 +21,7 @@ public class ParseBeanDefinitionsHolder {
 		}
 		
 		if(obj == null){
-			throw new RuntimeException(beanDefinition.getName() + "初始化失败!");
+			throw new RuntimeException(beanDefinition.getBeanClassName() + "初始化失败!");
 		}
 		
 		return obj;

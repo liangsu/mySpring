@@ -1,4 +1,4 @@
-package spring.ls.bean;
+package spring.ls.beans;
 
 public class SayHello {
 

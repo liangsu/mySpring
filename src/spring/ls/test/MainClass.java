@@ -1,9 +1,9 @@
 package spring.ls.test;
 
-import spring.ls.bean.Dog;
-import spring.ls.bean.SayHello;
-import spring.ls.factory.ApplicationContext;
-import spring.ls.factory.BeanFactory;
+import spring.ls.beans.Dog;
+import spring.ls.beans.SayHello;
+import spring.ls.beans.factory.ApplicationContext;
+import spring.ls.beans.factory.BeanFactory;
 
 public class MainClass {
 

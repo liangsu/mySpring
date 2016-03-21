@@ -1,4 +1,4 @@
-package spring.ls.factory;
+package spring.ls.beans.factory;
 
 /**
  * 默认配置

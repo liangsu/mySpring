@@ -5,8 +5,11 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import spring.ls.bean.BeanDefinition;
-import spring.ls.core.env.Environment;
+import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.factory.config.BeanDefinitionHolder;
+import spring.ls.beans.factory.config.GenericBeanDefinition;
+import spring.ls.beans.factory.support.BeanDefinitionRegistry;
+import spring.ls.beans.factory.support.BeanDefinitionRegistryUtils;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.PathUtil;
 
@@ -16,27 +19,17 @@ import spring.ls.util.PathUtil;
  *
  */
 public class ScanfAnnotation{
-	private Environment environment;
+	private BeanDefinitionRegistry beanDefinitionRegistry;
 	private String basePackage;
 	private String filePath;
-	private List<BeanDefinition> beanDefinitionsHoldersList = new ArrayList<BeanDefinition>();
+	private List<BeanDefinitionHolder> beanDefinitionHolders = new ArrayList<BeanDefinitionHolder>();
 	private ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
 	
-	public ScanfAnnotation(Environment environment,String basePath){
-		this.environment = environment;
+	public ScanfAnnotation(BeanDefinitionRegistry beanDefinitionRegistry,String basePath){
+		this.beanDefinitionRegistry = beanDefinitionRegistry;
 		this.basePackage = basePath;
 		filePath = PathUtil.getProjectPath() + File.separator + basePath.replace(".", File.separator);
 		scanfPackage(filePath,basePackage);
-	}
-	
-	/**
-	 * 获取bean的定义
-	 * @return
-	 */
-	public BeanDefinition[] getBeanDefinitions(){
-		int size = beanDefinitionsHoldersList.size();
-		BeanDefinition[] beandefinitionsHolders = beanDefinitionsHoldersList.toArray(new BeanDefinition[size]);
-		return beandefinitionsHolders;
 	}
 	
 	/**
@@ -76,11 +69,12 @@ public class ScanfAnnotation{
 	}
 	
 	private void addBeanDefinition(Component component,Class<?> clazz){
-		BeanDefinition beanDefinition = new BeanDefinition();
+		BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(getBeanName(component,clazz), null);
+		BeanDefinition beanDefinition = new GenericBeanDefinition();
 		beanDefinition.setBeanClass(clazz);
-		beanDefinition.setName( getBeanName(component,clazz) );
 		beanDefinition.setScope( getScope(clazz) );
-		beanDefinitionsHoldersList.add(beanDefinition);
+		beanDefinitionHolder.setBeanDefinition(beanDefinition);
+		beanDefinitionHolders.add(beanDefinitionHolder);
 	}
 	
 	private String getScope(Class<?> clazz) {
@@ -104,21 +98,20 @@ public class ScanfAnnotation{
 		return beanName;
 	}
 
-	public static void main(String[] args) {
-		ScanfAnnotation sa = new ScanfAnnotation(null,"spring.ls");
-		BeanDefinition[] beanDefinitionsHolders = sa.getBeanDefinitions();
-		for (BeanDefinition beanDefinitionsHolder : beanDefinitionsHolders) {
-			System.out.println("name:"+beanDefinitionsHolder.getName());
-			System.out.println("clazz:"+beanDefinitionsHolder.getBeanClass());
-			System.out.println("scope:"+beanDefinitionsHolder.getScope());
+	public void register() throws Exception {
+		for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
+			BeanDefinitionRegistryUtils.registerBeanDefinition(beanDefinitionHolder,beanDefinitionRegistry);
 		}
 	}
-
-	public void loadBeans() throws Exception {
-		BeanDefinition[] beanDefinitions = this.getBeanDefinitions();
-		for (BeanDefinition beanDefinition : beanDefinitions) {
-			environment.registerBeanDefinition(beanDefinition);
-		}
-	}
+	
+//	public static void main(String[] args) {
+//	ScanfAnnotation sa = new ScanfAnnotation(null,"spring.ls");
+//	BeanDefinition[] beanDefinitionsHolders = sa.getBeanDefinitions();
+//	for (BeanDefinition beanDefinitionsHolder : beanDefinitionsHolders) {
+//		System.out.println("name:"+beanDefinitionsHolder.getName());
+//		System.out.println("clazz:"+beanDefinitionsHolder.getBeanClass());
+//		System.out.println("scope:"+beanDefinitionsHolder.getScope());
+//	}
+//}
 
 }

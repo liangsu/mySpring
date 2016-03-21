@@ -1,4 +1,4 @@
-package spring.ls.bean;
+package spring.ls.beans;
 
 import spring.ls.annotation.Component;
 import spring.ls.annotation.Scope;
