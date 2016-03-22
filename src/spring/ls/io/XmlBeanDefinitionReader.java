@@ -2,6 +2,7 @@ package spring.ls.io;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,29 +14,22 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import spring.ls.beans.BeanDefinitionReader;
-import spring.ls.beans.factory.config.BeanDefinition;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
-import spring.ls.beans.factory.config.GenericBeanDefinition;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.beans.factory.support.BeanDefinitionRegistryUtils;
 import spring.ls.core.io.EncodedResource;
 import spring.ls.core.io.Resource;
-import spring.ls.util.ClassUtils;
+import spring.ls.util.StringUtils;
 
 public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 
 	private BeanDefinitionRegistry beanDefinitionRegistry;
+	private BeanDefinitionParserDelegate delegate = new BeanDefinitionParserDelegate();
 	
 	public XmlBeanDefinitionReader(BeanDefinitionRegistry beanDefinitionRegistry) {
 		this.beanDefinitionRegistry = beanDefinitionRegistry;
 	}
 	
-	private String getBeanName(Class<?> clazz){
-		String beanName = clazz.getSimpleName();
-		beanName = beanName.toLowerCase().charAt(0) + beanName.substring(1);
-		return beanName;
-	}
-
 	@Override
 	public void LoadBeanDefinitions(Resource resource) throws Exception {
 		if(!resource.exists()){
@@ -49,7 +43,7 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 		LoadBeanDefinitions(inputSource);
 	}
 	
-	public void LoadBeanDefinitions(InputSource inputSource) throws Exception {
+	private void LoadBeanDefinitions(InputSource inputSource) throws Exception {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(inputSource);
@@ -66,15 +60,9 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 	}
 
 	private void parseBeanDefinition(Element ele) throws ClassNotFoundException {
-		String id = ele.getAttribute("id");
-		String name = ele.getAttribute("name");
-		String[] aliases = null;
-		
-		String beanName = name;
 		try {
-			BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(beanName,aliases);
-			BeanDefinition beanDefinition = createBeanDefinition(ele);
-			beanDefinitionHolder.setBeanDefinition(beanDefinition);
+			BeanDefinitionHolder beanDefinitionHolder = delegate.parseBeanDefinitionElement(ele);
+			
 			BeanDefinitionRegistryUtils.registerBeanDefinition(beanDefinitionHolder, beanDefinitionRegistry);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -82,15 +70,6 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	private BeanDefinition createBeanDefinition(Element ele) throws ClassNotFoundException{
-		BeanDefinition beanDefinition = new GenericBeanDefinition();
-		String beanClassName = ele.getAttribute("class");
-		String scope = ele.getAttribute("scope");
-		beanDefinition.setBeanClass(ClassUtils.forName(beanClassName, ClassUtils.getDefaultClassLoader()));
-		beanDefinition.setScope(scope);
-		return beanDefinition;
 	}
 
 }

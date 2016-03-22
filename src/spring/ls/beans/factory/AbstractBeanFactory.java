@@ -9,6 +9,8 @@ import spring.ls.core.ParseBeanDefinitionsHolder;
 
 public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,BeanDefinitionRegistry{
 	private static Map<String, Object> beanDefinitionMap = new HashMap<String, Object>();
+	private static Map<String, String> aliases = new HashMap<String,String>();
+	
 	private static Map<String, Object> beans = new HashMap<String, Object>();
 	private static Map<String, Object> singletonBeans = new HashMap<String, Object>();
 	private static Map<String, Object> cacheBeans = new HashMap<String, Object>(4);
@@ -23,6 +25,18 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 		
 		Object instance = ParseBeanDefinitionsHolder.parse(beanDefinition);
 		registerBean(beanName, instance, beanDefinition.getScope());
+	}
+	
+	@Override
+	public void registerAlias(String beanName, String alias) throws Exception {
+		String oldBeanName = aliases.get(alias);
+		if(oldBeanName != null){
+			if(!beanName.equals(oldBeanName)){
+				throw new Exception(alias + "已经被注册了!");
+			}
+		}else{
+			aliases.put(alias, beanName);
+		}
 	}
 	
 	/**

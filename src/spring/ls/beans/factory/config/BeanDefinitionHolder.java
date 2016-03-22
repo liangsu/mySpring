@@ -5,6 +5,12 @@ public class BeanDefinitionHolder {
 	private String beanName;
 	private String[] asliases;
 	
+	public BeanDefinitionHolder(BeanDefinition beanDefinition, String beanName, String[] asliases) {
+		super();
+		this.beanDefinition = beanDefinition;
+		this.beanName = beanName;
+		this.asliases = asliases;
+	}
 	public BeanDefinitionHolder(String beanName, String[] asliases) {
 		super();
 		this.beanName = beanName;
