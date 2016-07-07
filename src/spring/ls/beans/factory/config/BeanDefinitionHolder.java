@@ -1,5 +1,7 @@
 package spring.ls.beans.factory.config;
 
+import spring.ls.beans.BeanDefinition;
+
 public class BeanDefinitionHolder {
 	private BeanDefinition beanDefinition;
 	private String beanName;

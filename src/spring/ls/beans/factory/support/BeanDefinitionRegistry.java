@@ -1,6 +1,6 @@
 package spring.ls.beans.factory.support;
 
-import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.BeanDefinition;
 
 /**
  * 登记注册bean

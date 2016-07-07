@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.AbstractBeanDefinition;
+import spring.ls.beans.BeanDefinition;
+import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.GenericBeanDefinition;
 import spring.ls.util.ClassUtils;
@@ -18,6 +22,8 @@ public class BeanDefinitionParserDelegate {
 	public static final String ATTRIBUTE_NAME = "name";
 	public static final String ATTRIBUTE_CLASS = "class";
 	public static final String ATTRIBUTE_SCOPE = "scope";
+	public static final String ATTRIBUTE_INIT_METHOD = "init-method";
+	
 	
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele) throws ClassNotFoundException{
 		String id = ele.getAttribute(ATTRIBUTE_ID);
@@ -40,24 +46,58 @@ public class BeanDefinitionParserDelegate {
 	}
 
 	private BeanDefinition parseBeanDefinitionElement(Element ele, String beanName) throws ClassNotFoundException {
-		BeanDefinition bd = new GenericBeanDefinition();
+		AbstractBeanDefinition bd = new GenericBeanDefinition();
 		
+		//解析bean的属性
 		parseBeanDefinitionAttributes(ele,bd);
+		
+		//解析meta元素
+		parseMetaElement(ele, bd); 
+		
+		//解析构造方法属性
 		
 		return bd;
 	}
 
 	
 	/**
+	 * 解析meta元素
+	 * @param ele
+	 * @param bd
+	 */
+	private void parseMetaElement(Element ele, BeanMetadataAttributeAccessor attributeAccessor) {
+		NodeList nodes = ele.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node node = nodes.item(i);
+			if(nodeNameEqual(node, "meta")){
+				Element element = (Element) node;
+				attributeAccessor.setAttribute(element.getAttribute("key"), element.getAttribute("value"));
+			}
+		}
+	}
+
+	/**
 	 * 解析标签属性
 	 * @param ele
 	 * @param beanDefinition
 	 * @throws ClassNotFoundException
 	 */
-	private void parseBeanDefinitionAttributes(Element ele,BeanDefinition beanDefinition) throws ClassNotFoundException{
+	private void parseBeanDefinitionAttributes(Element ele,AbstractBeanDefinition bd) throws ClassNotFoundException{
 		String beanClassName = ele.getAttribute(ATTRIBUTE_CLASS);
 		String scope = ele.getAttribute(ATTRIBUTE_SCOPE);
-		beanDefinition.setBeanClass(ClassUtils.forName(beanClassName, ClassUtils.getDefaultClassLoader()));
-		beanDefinition.setScope(scope);
+		bd.setBeanClass(ClassUtils.forName(beanClassName, ClassUtils.getDefaultClassLoader()));
+		bd.setScope(scope);
+	}
+	
+	public boolean isDefaultNameSpace(String nameSpaceUri){
+		return ( !StringUtils.hasLength(nameSpaceUri) || "http://www.springframework.org/schema/beans".equals(nameSpaceUri));
+	}
+	
+	public boolean isDefaultNameSpace(Node node){
+		return isDefaultNameSpace( node.getNamespaceURI());
+	}
+
+	public boolean nodeNameEqual(Node node, String desiredName) {
+		return desiredName.equals( node.getNodeName()) || desiredName.equals( node.getLocalName());
 	}
 }

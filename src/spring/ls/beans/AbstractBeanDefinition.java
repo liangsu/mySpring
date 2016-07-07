@@ -1,6 +1,6 @@
-package spring.ls.beans.factory.config;
+package spring.ls.beans;
 
-public abstract class AbstractBeanDefinition implements BeanDefinition{
+public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
 
 	private volatile Object beanClass;
 	private String scope;

@@ -34,14 +34,21 @@ public class XmlTest {
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(inputSource);
-		System.out.println(document);
+		//System.out.println(document);
 		Element root = document.getDocumentElement();
-		System.out.println(root);
+		//System.out.println(root);
 		NodeList nodeList = root.getChildNodes();
 		for(int i  = 0; i < nodeList.getLength(); i++){
 			Node node = nodeList.item(i);
-			System.out.println(node);
-			//System.out.println(node.getNodeName());
+			System.out.println(node.getNamespaceURI());
+			if(node instanceof Element){
+				Element ele = (Element) node;
+				System.out.println(node.getNodeName());
+				System.out.println(node.getLocalName());
+				System.out.println(ele.getAttribute("name"));
+				System.out.println(ele.getAttribute("class"));
+				System.out.println(ele.getAttribute("scope"));
+			}
 		}
 		
 	}

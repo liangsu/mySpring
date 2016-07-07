@@ -3,7 +3,7 @@ package spring.ls.beans.factory;
 import java.util.HashMap;
 import java.util.Map;
 
-import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.core.ParseBeanDefinitionsHolder;
 

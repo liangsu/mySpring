@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.GenericBeanDefinition;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;

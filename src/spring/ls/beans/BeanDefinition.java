@@ -1,11 +1,11 @@
-package spring.ls.beans.factory.config;
+package spring.ls.beans;
 
 /**
  * 用于bean信息的描述
  * @author Administrator
  *
  */
-public interface BeanDefinition {
+public interface BeanDefinition extends AttributeAccessor{
 	
 	String SCOPE_PROTOTYPE = "prototype";
 	String SCOPE_SINGLETION = "singleton";

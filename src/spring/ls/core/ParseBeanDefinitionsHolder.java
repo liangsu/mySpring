@@ -1,6 +1,6 @@
 package spring.ls.core;
 
-import spring.ls.beans.factory.config.BeanDefinition;
+import spring.ls.beans.BeanDefinition;
 
 /**
  * 用于将{@code BeanDefinition}解析实例的类
