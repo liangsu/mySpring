@@ -11,8 +11,14 @@ import org.w3c.dom.NodeList;
 import spring.ls.beans.AbstractBeanDefinition;
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
+import spring.ls.beans.LookupOverride;
+import spring.ls.beans.MethodOverrides;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.GenericBeanDefinition;
+import spring.ls.beans.factory.parsing.ReaderContext;
+import spring.ls.beans.factory.xml.NamespaceHandler;
+import spring.ls.beans.factory.xml.ParserContext;
+import spring.ls.beans.factory.xml.XmlReaderContext;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.StringUtils;
 
@@ -24,7 +30,12 @@ public class BeanDefinitionParserDelegate {
 	public static final String ATTRIBUTE_SCOPE = "scope";
 	public static final String ATTRIBUTE_INIT_METHOD = "init-method";
 	
+	private XmlReaderContext readerContext;
 	
+	public BeanDefinitionParserDelegate(XmlReaderContext readerContext) {
+		this.readerContext = readerContext;
+	}
+
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele) throws ClassNotFoundException{
 		String id = ele.getAttribute(ATTRIBUTE_ID);
 		String nameAttr = ele.getAttribute(ATTRIBUTE_NAME);
@@ -52,13 +63,28 @@ public class BeanDefinitionParserDelegate {
 		parseBeanDefinitionAttributes(ele,bd);
 		
 		//解析meta元素
-		parseMetaElement(ele, bd); 
+		parseMetaElement(ele, bd);
+		
+		//解析lookup-method元素
+		parseLookupSubElement(ele, bd.getMethodOverrides());
 		
 		//解析构造方法属性
 		
 		return bd;
 	}
 
+	/**
+	 * 解析标签属性
+	 * @param ele
+	 * @param beanDefinition
+	 * @throws ClassNotFoundException
+	 */
+	private void parseBeanDefinitionAttributes(Element ele,AbstractBeanDefinition bd) throws ClassNotFoundException{
+		String beanClassName = ele.getAttribute(ATTRIBUTE_CLASS);
+		String scope = ele.getAttribute(ATTRIBUTE_SCOPE);
+		bd.setBeanClass(ClassUtils.forName(beanClassName, ClassUtils.getDefaultClassLoader()));
+		bd.setScope(scope);
+	}
 	
 	/**
 	 * 解析meta元素
@@ -75,18 +101,25 @@ public class BeanDefinitionParserDelegate {
 			}
 		}
 	}
-
+	
 	/**
-	 * 解析标签属性
-	 * @param ele
-	 * @param beanDefinition
-	 * @throws ClassNotFoundException
+	 * 解析lookup-method元素
+	 * @param beanEle
+	 * @param methodOverrides
 	 */
-	private void parseBeanDefinitionAttributes(Element ele,AbstractBeanDefinition bd) throws ClassNotFoundException{
-		String beanClassName = ele.getAttribute(ATTRIBUTE_CLASS);
-		String scope = ele.getAttribute(ATTRIBUTE_SCOPE);
-		bd.setBeanClass(ClassUtils.forName(beanClassName, ClassUtils.getDefaultClassLoader()));
-		bd.setScope(scope);
+	private void parseLookupSubElement(Element beanEle, MethodOverrides methodOverrides) {
+		NodeList nodes = beanEle.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node node = nodes.item(i);
+			if(nodeNameEqual(node, "lookup-method")){
+				Element element = (Element) node;
+				String methodName = element.getAttribute("name");
+				String beanName = element.getAttribute("bean");
+				LookupOverride lookupOverride = new LookupOverride(methodName, beanName);
+				lookupOverride.setSource(element);
+				methodOverrides.addMethodOverride(lookupOverride);
+			}
+		}
 	}
 	
 	public boolean isDefaultNameSpace(String nameSpaceUri){
@@ -99,5 +132,44 @@ public class BeanDefinitionParserDelegate {
 
 	public boolean nodeNameEqual(Node node, String desiredName) {
 		return desiredName.equals( node.getNodeName()) || desiredName.equals( node.getLocalName());
+	}
+
+	/**
+	 * 解析自定义标签
+	 * @param ele
+	 * @return
+	 */
+	public BeanDefinition parseCustomElement(Element ele) {
+		String namespaceUri = ele.getNamespaceURI();
+		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
+		BeanDefinition bd = handler.parse(ele, new ParserContext());
+		return bd;
+	}
+	
+	public XmlReaderContext getReaderContext() {
+		return readerContext;
+	}
+
+	/**
+	 * 解析bean标签下的自定义标签
+	 * @param ele
+	 * @param bdHoler
+	 * @return
+	 */
+	public BeanDefinitionHolder decorateBeanDefinitionIfRequired(Element beanEle, BeanDefinitionHolder bdHolder) {
+		
+		BeanDefinitionHolder finalDefinition = bdHolder;
+		
+		NodeList nodes = beanEle.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node node = nodes.item(i);
+			String namespaceUri = node.getNamespaceURI();
+			if( !isDefaultNameSpace(namespaceUri)){
+				NamespaceHandler handler = getReaderContext().getNamespaceHandlerResolver().resolve(namespaceUri);
+				finalDefinition = handler.decorate(node, finalDefinition, new ParserContext());
+			}
+		}
+		
+		return finalDefinition;
 	}
 }

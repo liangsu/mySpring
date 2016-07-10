@@ -2,7 +2,6 @@ package spring.ls.test;
 
 import org.junit.Test;
 
-import spring.ls.beans.SayHello;
 import spring.ls.beans.factory.BeanFactory;
 import spring.ls.beans.factory.XmlBeanFactory;
 import spring.ls.core.io.ClassPathResource;

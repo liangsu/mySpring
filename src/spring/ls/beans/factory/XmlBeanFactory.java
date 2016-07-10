@@ -9,7 +9,7 @@ public class XmlBeanFactory extends AbstractBeanFactory{
 	
 	public XmlBeanFactory(Resource resource) {
 		try {
-			reader.LoadBeanDefinitions(resource);
+			reader.loadBeanDefinitions(resource);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

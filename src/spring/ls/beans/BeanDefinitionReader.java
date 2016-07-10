@@ -12,5 +12,5 @@ public interface BeanDefinitionReader {
 	 * 获取定义的bean
 	 * @return
 	 */
-	void LoadBeanDefinitions(Resource resource) throws Exception;
+	void loadBeanDefinitions(Resource resource) throws Exception;
 }

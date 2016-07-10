@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
+
+	<import resource="beans2.xml"/>
 	
-	<bean name="sayHello" class="spring.ls.beans.SayHello" scope="prototype" ></bean>
+	<context:component-scan base-package="com.tuzuan.controller" />
+	
+	<bean name="sayHello" class="spring.ls.test.SayHello" scope="prototype" >
+		<aa id="aa" value="aa">
+			<a1 id="a1" value="a1"></a1>
+		</aa>
+	</bean>
+	
+	<myname:user name="aa" email="123456@qq.com"></myname:user>
 
 </beans>

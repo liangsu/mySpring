@@ -1,7 +1,6 @@
 package spring.ls.test;
 
 import spring.ls.beans.Dog;
-import spring.ls.beans.SayHello;
 import spring.ls.beans.factory.ApplicationContext;
 import spring.ls.beans.factory.BeanFactory;
 
@@ -16,5 +15,8 @@ public class MainClass {
 		Dog dog2 = (Dog) factory.getBean("dog");
 		System.out.println(dog);
 		System.out.println(dog2);
+		
+		User user = (User) factory.getBean("user");
+		user.showMe();
 	}
 }

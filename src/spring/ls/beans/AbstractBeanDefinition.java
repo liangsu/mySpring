@@ -3,7 +3,10 @@ package spring.ls.beans;
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
 
 	private volatile Object beanClass;
+	
 	private String scope;
+	
+	private MethodOverrides methodOverrides;
 	
 	@Override
 	public void setBeanClassName(String beanClassName) {
@@ -55,5 +58,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	public boolean isSingleton() {
 		return SCOPE_SINGLETION.equals(scope);
 	}
-
+	
+	public MethodOverrides getMethodOverrides() {
+		return methodOverrides;
+	}
 }
