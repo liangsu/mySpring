@@ -15,7 +15,6 @@ import spring.ls.beans.LookupOverride;
 import spring.ls.beans.MethodOverrides;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.GenericBeanDefinition;
-import spring.ls.beans.factory.parsing.ReaderContext;
 import spring.ls.beans.factory.xml.NamespaceHandler;
 import spring.ls.beans.factory.xml.ParserContext;
 import spring.ls.beans.factory.xml.XmlReaderContext;
@@ -142,7 +141,7 @@ public class BeanDefinitionParserDelegate {
 	public BeanDefinition parseCustomElement(Element ele) {
 		String namespaceUri = ele.getNamespaceURI();
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
-		BeanDefinition bd = handler.parse(ele, new ParserContext());
+		BeanDefinition bd = handler.parse(ele,  new ParserContext(readerContext, this));
 		return bd;
 	}
 	
@@ -166,10 +165,14 @@ public class BeanDefinitionParserDelegate {
 			String namespaceUri = node.getNamespaceURI();
 			if( !isDefaultNameSpace(namespaceUri)){
 				NamespaceHandler handler = getReaderContext().getNamespaceHandlerResolver().resolve(namespaceUri);
-				finalDefinition = handler.decorate(node, finalDefinition, new ParserContext());
+				finalDefinition = handler.decorate(node, finalDefinition, new ParserContext(readerContext, this));
 			}
 		}
 		
 		return finalDefinition;
+	}
+
+	public String getLocalName(Node node) {
+		return node.getLocalName();
 	}
 }

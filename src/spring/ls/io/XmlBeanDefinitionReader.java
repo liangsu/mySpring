@@ -59,18 +59,30 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 		loadBeanDefinitions(document.getDocumentElement(), delegate);
 	}
 	
+	/**
+	 * 解析第一级的元素，"bean"、"alias"、"import"
+	 * @param root
+	 * @param delegate
+	 * @throws Exception
+	 */
 	private void loadBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) throws Exception {
-		NodeList nodeList = root.getChildNodes();
-		for(int i  = 0; i < nodeList.getLength(); i++){
-			Node node = nodeList.item(i);
-			if(node instanceof Element){
-				Element ele = (Element) node;
-				if( delegate.isDefaultNameSpace(node)){
-					parseDefaultElement(ele, delegate);
-				}else{
-					delegate.parseCustomElement(ele);
+		if( delegate.isDefaultNameSpace(root)){
+			NodeList nodeList = root.getChildNodes();
+			for(int i  = 0; i < nodeList.getLength(); i++){
+				Node node = nodeList.item(i);
+				if(node instanceof Element){
+					Element ele = (Element) node;
+					if( delegate.isDefaultNameSpace(node)){
+						parseDefaultElement(ele, delegate);
+					}else{
+						delegate.parseCustomElement(ele);
+					}
 				}
 			}
+			
+		}else{
+			
+			delegate.parseCustomElement(root);
 		}
 	}
 

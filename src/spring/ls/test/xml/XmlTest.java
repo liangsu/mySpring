@@ -1,4 +1,4 @@
-package spring.ls.test;
+package spring.ls.test.xml;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,14 +40,15 @@ public class XmlTest {
 		NodeList nodeList = root.getChildNodes();
 		for(int i  = 0; i < nodeList.getLength(); i++){
 			Node node = nodeList.item(i);
-			System.out.println(node.getNamespaceURI());
 			if(node instanceof Element){
+				System.out.println("namespaceUri:"+node.getNamespaceURI());
 				Element ele = (Element) node;
-				System.out.println(node.getNodeName());
-				System.out.println(node.getLocalName());
-				System.out.println(ele.getAttribute("name"));
-				System.out.println(ele.getAttribute("class"));
-				System.out.println(ele.getAttribute("scope"));
+				System.out.println("nodeName:"+node.getNodeName());
+				System.out.println("localName:"+node.getLocalName());
+				System.out.println("name:"+ele.getAttribute("name"));
+				System.out.println("class:"+ele.getAttribute("class"));
+				System.out.println("scope:"+ele.getAttribute("scope"));
+				System.out.println("------");
 			}
 		}
 		
