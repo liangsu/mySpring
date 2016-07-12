@@ -8,6 +8,9 @@ import spring.ls.beans.factory.config.BeanDefinitionHolder;
 
 public interface NamespaceHandler {
 
+	/**
+	 * 注册beanDefinitionParser
+	 */
 	void init();
 	
 	/**

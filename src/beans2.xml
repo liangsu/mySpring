@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:user="http://www.ls.com/schema/user"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.ls.com/schema/user
+        http://www.ls.com/schema/user/spring-ls.xsd">
 	
-	<bean name="user" class="spring.ls.test.User" scope="prototype" >
-	</bean>
+	<!-- <bean name="user" class="spring.ls.test.User" scope="prototype" >
+	</bean> -->
+	
+	<user:teacher id="teacher" name="教师" email="123456@qq.com" />
 
 </beans>

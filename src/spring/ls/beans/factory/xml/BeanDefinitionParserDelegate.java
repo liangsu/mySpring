@@ -1,4 +1,4 @@
-package spring.ls.io;
+package spring.ls.beans.factory.xml;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,14 +15,13 @@ import spring.ls.beans.LookupOverride;
 import spring.ls.beans.MethodOverrides;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.GenericBeanDefinition;
-import spring.ls.beans.factory.xml.NamespaceHandler;
-import spring.ls.beans.factory.xml.ParserContext;
-import spring.ls.beans.factory.xml.XmlReaderContext;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.StringUtils;
 
 public class BeanDefinitionParserDelegate {
-	public static final String MULTI_VALUE_ATTRIBUTE_DELIMITERS = ",";
+	
+	/** 默认bean的命名空间 */
+	public static final String BEANS_NAMESPACE_URI = "http://www.springframework.org/schema/beans";
 	public static final String ATTRIBUTE_ID = "id";
 	public static final String ATTRIBUTE_NAME = "name";
 	public static final String ATTRIBUTE_CLASS = "class";
@@ -121,25 +120,13 @@ public class BeanDefinitionParserDelegate {
 		}
 	}
 	
-	public boolean isDefaultNameSpace(String nameSpaceUri){
-		return ( !StringUtils.hasLength(nameSpaceUri) || "http://www.springframework.org/schema/beans".equals(nameSpaceUri));
-	}
-	
-	public boolean isDefaultNameSpace(Node node){
-		return isDefaultNameSpace( node.getNamespaceURI());
-	}
-
-	public boolean nodeNameEqual(Node node, String desiredName) {
-		return desiredName.equals( node.getNodeName()) || desiredName.equals( node.getLocalName());
-	}
-
 	/**
 	 * 解析自定义标签
 	 * @param ele
 	 * @return
 	 */
 	public BeanDefinition parseCustomElement(Element ele) {
-		String namespaceUri = ele.getNamespaceURI();
+		String namespaceUri = getNamespaceURI(ele);
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		BeanDefinition bd = handler.parse(ele,  new ParserContext(readerContext, this));
 		return bd;
@@ -174,5 +161,21 @@ public class BeanDefinitionParserDelegate {
 
 	public String getLocalName(Node node) {
 		return node.getLocalName();
+	}
+	
+	public String getNamespaceURI(Node node){
+		return node.getNamespaceURI();
+	}
+	
+	public boolean isDefaultNameSpace(String nameSpaceUri){
+		return ( !StringUtils.hasLength(nameSpaceUri) || BEANS_NAMESPACE_URI.equals(nameSpaceUri));
+	}
+	
+	public boolean isDefaultNameSpace(Node node){
+		return isDefaultNameSpace( node.getNamespaceURI());
+	}
+
+	public boolean nodeNameEqual(Node node, String desiredName) {
+		return desiredName.equals( node.getNodeName()) || desiredName.equals( node.getLocalName());
 	}
 }

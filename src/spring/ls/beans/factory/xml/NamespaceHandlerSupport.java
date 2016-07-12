@@ -10,7 +10,7 @@ import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 
 /**
- * 自定义标签解析类的支持
+ * 自定义标签解析、装饰的支持
  * @author warhorse
  *
  */

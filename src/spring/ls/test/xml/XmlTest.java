@@ -32,6 +32,7 @@ public class XmlTest {
 		inputSource.setEncoding(encodedResource.getEncoding());
 		
 		DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+		documentBuilderFactory.setNamespaceAware(true);
 		DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
 		Document document = documentBuilder.parse(inputSource);
 		//System.out.println(document);

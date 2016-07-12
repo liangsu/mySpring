@@ -1,8 +1,8 @@
 package spring.ls.beans.factory.xml;
 
 import spring.ls.beans.factory.parsing.ReaderContext;
+import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.core.io.Resource;
-import spring.ls.io.XmlBeanDefinitionReader;
 
 public class XmlReaderContext extends ReaderContext{
 
@@ -17,12 +17,15 @@ public class XmlReaderContext extends ReaderContext{
 		this.namespaceHandlerResolver = namespaceHandlerResolver;
 	}
 
-	public XmlBeanDefinitionReader getReader() {
+	public final XmlBeanDefinitionReader getReader() {
 		return reader;
 	}
 
-	public NamespaceHandlerResolver getNamespaceHandlerResolver() {
+	public final NamespaceHandlerResolver getNamespaceHandlerResolver() {
 		return namespaceHandlerResolver;
 	}
 
+	public final BeanDefinitionRegistry getRegistry(){
+		return this.reader.getRegistry();
+	}
 }

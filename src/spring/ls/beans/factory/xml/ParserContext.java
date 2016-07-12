@@ -1,6 +1,6 @@
 package spring.ls.beans.factory.xml;
 
-import spring.ls.io.BeanDefinitionParserDelegate;
+import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 
 public class ParserContext {
 
@@ -14,12 +14,15 @@ public class ParserContext {
 		this.delegate = delegate;
 	}
 
-	public XmlReaderContext getReaderContext() {
+	public final XmlReaderContext getReaderContext() {
 		return readerContext;
 	}
 
-	public BeanDefinitionParserDelegate getDelegate() {
+	public final BeanDefinitionParserDelegate getDelegate() {
 		return delegate;
 	}
 
+	public final BeanDefinitionRegistry getRegistry(){
+		return this.readerContext.getRegistry();
+	}
 }

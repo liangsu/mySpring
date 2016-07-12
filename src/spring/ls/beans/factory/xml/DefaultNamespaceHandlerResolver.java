@@ -44,7 +44,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 		if(handlerMappings == null){
 			handlerMappings = new HashMap<String, Object>();
 			//读取namespaceHandler的类路径，并放入map
-			handlerMappings.put("http://www.ls.com", "spring.ls.test.UserNamespaceHandler");
+			handlerMappings.put("http://www.ls.com/schema/user", "spring.ls.test.UserNamespaceHandler");
 		}
 		
 		return handlerMappings;
