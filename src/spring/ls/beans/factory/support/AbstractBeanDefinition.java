@@ -3,6 +3,7 @@ package spring.ls.beans.factory.support;
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.MethodOverrides;
+import spring.ls.beans.factory.config.ConstructorArgumentValues;
 
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
 
@@ -10,10 +11,20 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	
 	private String scope;
 	
-	private MethodOverrides methodOverrides;
+	private MethodOverrides methodOverrides = new MethodOverrides();
 	
-	public AbstractBeanDefinition() {
-		
+	private ConstructorArgumentValues constructorArgumentValues;
+	
+	private String factoryBeanName;
+	
+	private String factoryMethodName;
+	
+	protected AbstractBeanDefinition() {
+		this((ConstructorArgumentValues)null);
+	}
+	
+	protected AbstractBeanDefinition(ConstructorArgumentValues cav){
+		setConstructorArgumentValues(cav);
 	}
 	
 	public AbstractBeanDefinition(BeanDefinition original){
@@ -90,5 +101,29 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	
 	public boolean hasBeanClass(){
 		return (beanClass instanceof Class);
+	}
+
+	public String getFactoryBeanName() {
+		return factoryBeanName;
+	}
+
+	public void setFactoryBeanName(String factoryBeanName) {
+		this.factoryBeanName = factoryBeanName;
+	}
+
+	public String getFactoryMethodName() {
+		return factoryMethodName;
+	}
+
+	public void setFactoryMethodName(String factoryMethodName) {
+		this.factoryMethodName = factoryMethodName;
+	}
+
+	public ConstructorArgumentValues getConstructorArgumentValues() {
+		return constructorArgumentValues;
+	}
+
+	public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
+		this.constructorArgumentValues = (constructorArgumentValues != null ? constructorArgumentValues : new ConstructorArgumentValues());
 	}
 }

@@ -20,7 +20,7 @@ public class UserBeanDefinitionParser implements BeanDefinitionParser{
 			GenericBeanDefinition bd = new GenericBeanDefinition();
 			bd.setBeanClass(User.class);
 			bd.setSource(element);
-			bd.setScope("prototype");
+			bd.setScope("singleton");
 			parserContext.getRegistry().registerBeanDefinition(element.getAttribute("id"), bd);
 		} catch (Exception e) {
 			e.printStackTrace();

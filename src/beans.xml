@@ -6,7 +6,7 @@
 
 	<import resource="beans2.xml"/>
 	
-	<bean name="sayHello" class="spring.ls.test.SayHello" scope="prototype" >
+	<bean name="sayHello" class="spring.ls.test.SayHello" scope="singleton" >
 	</bean>
 
 </beans>

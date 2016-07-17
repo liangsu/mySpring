@@ -4,6 +4,14 @@ import spring.ls.beans.BeanDefinition;
 
 public class RootBeanDefinition extends AbstractBeanDefinition{
 
+	public final Object constructorArgumentLock = new Object();
+	
+	/** 缓存bean实例化的构造方法 或 工厂方法*/
+	public Object resolvedConstructorOrFactoryMethod;
+	
+	/** 标记是否有构造方法注入 */
+	public boolean constructorArgumentsResolved = false;
+	
 	public RootBeanDefinition(BeanDefinition original){
 		super(original);
 	}

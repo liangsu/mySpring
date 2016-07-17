@@ -4,6 +4,10 @@ public class GenericBeanDefinition extends AbstractBeanDefinition{
 	
 	private String parentName;
 
+	public GenericBeanDefinition() {
+		super();
+	}
+	
 	public String getParentName() {
 		return parentName;
 	}

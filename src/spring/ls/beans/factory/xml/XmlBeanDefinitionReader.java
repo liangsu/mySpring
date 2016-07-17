@@ -10,6 +10,8 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 import spring.ls.beans.BeanDefinitionReader;
+import spring.ls.beans.factory.parsing.FailFastProblemReporter;
+import spring.ls.beans.factory.parsing.ProblemReporter;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.core.io.EncodedResource;
 import spring.ls.core.io.Resource;
@@ -18,6 +20,7 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 
 	private BeanDefinitionRegistry beanDefinitionRegistry;
 	private NamespaceHandlerResolver namespaceHandlerResolver;
+	private ProblemReporter problemReporter;
 	
 	public XmlBeanDefinitionReader(BeanDefinitionRegistry beanDefinitionRegistry){
 		this.beanDefinitionRegistry = beanDefinitionRegistry;
@@ -46,7 +49,7 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 	}
 	
 	private XmlReaderContext createReaderContext(Resource resource){
-		return new XmlReaderContext(resource, this, getNamespaceHandlerResolver());
+		return new XmlReaderContext(resource, getProblemReporter(), this, getNamespaceHandlerResolver());
 	}
 	
 	private NamespaceHandlerResolver getNamespaceHandlerResolver(){
@@ -54,6 +57,13 @@ public class XmlBeanDefinitionReader implements BeanDefinitionReader{
 			namespaceHandlerResolver = new DefaultNamespaceHandlerResolver();
 		}
 		return this.namespaceHandlerResolver;
+	}
+	
+	private ProblemReporter getProblemReporter(){
+		if(this.problemReporter == null){
+			this.problemReporter = new FailFastProblemReporter();
+		}
+		return this.problemReporter;
 	}
 	
 	public BeanDefinitionRegistry getRegistry() {

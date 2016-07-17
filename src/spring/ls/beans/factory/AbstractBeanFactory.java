@@ -1,5 +1,7 @@
 package spring.ls.beans.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -7,9 +9,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import spring.ls.beans.BeanDefinition;
+import spring.ls.beans.BeanUtils;
 import spring.ls.beans.BeansException;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.beans.factory.support.RootBeanDefinition;
+import spring.ls.util.ObjectUtils;
 import spring.ls.util.StringUtils;
 
 public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,BeanDefinitionRegistry{
@@ -77,7 +81,7 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 	
 	public Object doGetBean(String name) throws BeansException{
 		
-		String beanName = cononicalName(name);
+		final String beanName = cononicalName(name);
 		
 		Object bean;
 		
@@ -97,27 +101,27 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 
 					@Override
 					public Object getObject() throws BeansException {
-						// TODO Auto-generated method stub
-						return null;
+						
+						return createBean(beanName, mbd);
 					}
-					
+
 				});
 				
-				Class<?> clazz = mbd.getBeanClass();
-				try {
-					bean = clazz.newInstance();
-				} catch (Exception e) {
-					throw new BeansException("bean加载失败!");
-				}
+//				Class<?> clazz = mbd.getBeanClass();
+//				try {
+//					bean = clazz.newInstance();
+//				} catch (Exception e) {
+//					throw new BeansException("bean加载失败!");
+//				}
 				
 			}else if( mbd.isPrototype()){
 				
-				Class<?> clazz = mbd.getBeanClass();
-				try {
-					bean = clazz.newInstance();
-				} catch (Exception e) {
-					throw new BeansException("bean加载失败!");
-				}
+//				Class<?> clazz = mbd.getBeanClass();
+//				try {
+//					bean = clazz.newInstance();
+//				} catch (Exception e) {
+//					throw new BeansException("bean加载失败!");
+//				}
 				
 			}else{
 				
@@ -131,6 +135,13 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 		return bean;
 	}
 
+	/**
+	 * 创建bean，检测循环依赖
+	 * @param beanName
+	 * @param objectFactory
+	 * @return
+	 * @throws BeansException
+	 */
 	private Object getSingleton(String beanName, ObjectFactory<Object> objectFactory) throws BeansException {
 		
 		//首先检查对应的bean是否已经加载过了，因为singleton模式就是复用已创建的bean，所以这一步是必须的
@@ -310,6 +321,101 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 			throw new BeansException("创建beanName："+beanName+"失败!");
 		}
 		
+		//TODO 调用objectFactory的后处理器
+		
 		return object;
+	}
+	
+	public Object createBean(final String beanName,final RootBeanDefinition mbd) throws BeansException {
+		//TODO 验证及准备覆盖的方法
+		
+		//TODO 给BeanPostProcessor一个机会返回代理来代替真正的实例
+		
+		//创建bean
+		Object beanInstance = doCreateBean(beanName, mbd);
+		
+		
+		return beanInstance;
+	}
+
+	
+	public Object doCreateBean(String beanName, RootBeanDefinition mbd) throws BeansException {
+		
+		return createBeanInstance(beanName, mbd, null);
+	} 
+
+	public Object createBeanInstance(String beanName, RootBeanDefinition mbd, Object[] args) throws BeansException {
+		
+		Class<?> beanClass = mbd.getBeanClass();
+		
+		if(beanClass != null && !Modifier.isPublic(beanClass.getModifiers())){
+			throw new BeansException("bean class is not public");
+		}
+		
+		//如果有factoryMethodName，则调用factoryBean的方法创建bean
+		if(mbd.getFactoryMethodName() != null){
+			//TODO 创建
+			return null;
+		}
+		
+		boolean resolved = false;
+		boolean autowireNecessary = false;
+		
+		if(args == null){
+			synchronized (mbd.constructorArgumentLock) {
+				if( mbd.resolvedConstructorOrFactoryMethod != null){
+					resolved = true;
+					autowireNecessary = mbd.constructorArgumentsResolved;
+				}
+			}
+		}
+		
+		if(resolved){
+			if(autowireNecessary){
+				//TODO
+				return null;
+			}else{
+				return instantiateBean(beanName, mbd);
+			}
+		}
+		
+//		Constructor[] ctors = beanClass.getDeclaredConstructors();
+//		if(ctors != null || !ObjectUtils.isEmpty(args)){
+//			
+//		}
+		
+		return instantiateBean(beanName, mbd);
+	}
+
+	public Object instantiateBean(String beanName, RootBeanDefinition bd) throws BeansException {
+		
+		if(bd.getMethodOverrides().isEmpty()){
+			Constructor<?> constructorToUse;
+			//解析默认的构造方法
+			synchronized (bd.constructorArgumentLock) {
+				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
+				if(constructorToUse == null){
+					Class<?> beanClass = bd.getBeanClass();
+					if(beanClass.isInterface()){
+						throw new BeansException("你初始化的bean："+beanName+"是一个接口");
+					}
+					
+					try {
+						constructorToUse = beanClass.getDeclaredConstructor();
+						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
+					} catch (Exception e) {
+						throw new BeansException(beanClass+"没有找到默认的构造方法");
+					}
+				}
+			}
+			return BeanUtils.instantiateClass(constructorToUse);
+			
+		}else{
+			return instantiateWithMethodInjection(beanName, bd);
+		}
+	}
+
+	public Object instantiateWithMethodInjection(String beanName, RootBeanDefinition bd) {
+		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
 	}
 }

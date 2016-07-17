@@ -1,5 +1,6 @@
 package spring.ls.beans.factory.xml;
 
+import spring.ls.beans.factory.parsing.ProblemReporter;
 import spring.ls.beans.factory.parsing.ReaderContext;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.core.io.Resource;
@@ -10,9 +11,9 @@ public class XmlReaderContext extends ReaderContext{
 	
 	private final NamespaceHandlerResolver namespaceHandlerResolver;
 
-	public XmlReaderContext(Resource resource, XmlBeanDefinitionReader reader,
+	public XmlReaderContext(Resource resource, ProblemReporter problemReporter, XmlBeanDefinitionReader reader,
 			NamespaceHandlerResolver namespaceHandlerResolver) {
-		super(resource);
+		super(resource, problemReporter);
 		this.reader = reader;
 		this.namespaceHandlerResolver = namespaceHandlerResolver;
 	}

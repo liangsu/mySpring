@@ -6,10 +6,7 @@ import java.util.List;
 public class StringUtils {
 
 	public static boolean hasLength(String text){
-		if(text != null && text.trim().length() > 0){
-			return true;
-		}
-		return false;
+		return (text != null && text.length() > 0);
 	}
 	
 	public static List<String> StringtoArray(String text, String split){
@@ -18,5 +15,9 @@ public class StringUtils {
 			return Arrays.asList(array);
 		}
 		return null;
+	}
+
+	public static boolean hasText(String text) {
+		return (text != null && text.trim().length() > 0);
 	}
 }

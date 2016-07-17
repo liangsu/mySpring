@@ -1,6 +1,6 @@
 package spring.ls.beans;
 
-public class BeansException extends Exception{
+public class BeansException extends RuntimeException{
 
 	public BeansException(String msg){
 		super(msg);
