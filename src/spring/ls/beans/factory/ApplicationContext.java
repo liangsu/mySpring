@@ -13,7 +13,7 @@ public class ApplicationContext extends AbstractBeanFactory implements BeanFacto
 	}
 	
 	public ApplicationContext(String fileLocation) {
-		annotationBeanFactory = new AnnotationBeanFactory();
+		//annotationBeanFactory = new AnnotationBeanFactory();
 		xmlBeanFactory =new XmlBeanFactory(new ClassPathResource(fileLocation));
 	}
 

@@ -12,7 +12,7 @@ public class StringUtils {
 		return false;
 	}
 	
-	public static List StringtoArray(String text, String split){
+	public static List<String> StringtoArray(String text, String split){
 		String[] array = text.split(split);
 		if(array != null && array.length > 0){
 			return Arrays.asList(array);

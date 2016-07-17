@@ -8,7 +8,11 @@ package spring.ls.beans;
 public interface BeanDefinition extends AttributeAccessor{
 	
 	String SCOPE_PROTOTYPE = "prototype";
-	String SCOPE_SINGLETION = "singleton";
+	String SCOPE_SINGLETON = "singleton";
+	
+	String getParentName();
+	
+	void setParentName(String parentName);
 	
 	/**
 	 * 设置bean的class，如：com.ls.User

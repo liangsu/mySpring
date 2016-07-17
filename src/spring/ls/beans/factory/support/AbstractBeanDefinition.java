@@ -1,4 +1,8 @@
-package spring.ls.beans;
+package spring.ls.beans.factory.support;
+
+import spring.ls.beans.BeanDefinition;
+import spring.ls.beans.BeanMetadataAttributeAccessor;
+import spring.ls.beans.MethodOverrides;
 
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
 
@@ -7,6 +11,23 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	private String scope;
 	
 	private MethodOverrides methodOverrides;
+	
+	public AbstractBeanDefinition() {
+		
+	}
+	
+	public AbstractBeanDefinition(BeanDefinition original){
+		setBeanClassName(original.getBeanClassName());
+		setScope(original.getScope());
+		
+		if(original instanceof AbstractBeanDefinition){
+			AbstractBeanDefinition bd = (AbstractBeanDefinition) original;
+			if(bd.hasBeanClass()){
+				setBeanClass(bd.getBeanClass());
+			}
+			setMethodOverrides(bd.getMethodOverrides());
+		}
+	}
 	
 	@Override
 	public void setBeanClassName(String beanClassName) {
@@ -56,10 +77,18 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	@Override
 	public boolean isSingleton() {
-		return SCOPE_SINGLETION.equals(scope);
+		return SCOPE_SINGLETON.equals(scope);
 	}
 	
 	public MethodOverrides getMethodOverrides() {
 		return methodOverrides;
+	}
+	
+	public void setMethodOverrides(MethodOverrides methodOverrides) {
+		this.methodOverrides = methodOverrides;
+	}
+	
+	public boolean hasBeanClass(){
+		return (beanClass instanceof Class);
 	}
 }

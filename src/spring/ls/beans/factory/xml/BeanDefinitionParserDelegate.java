@@ -8,13 +8,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import spring.ls.beans.AbstractBeanDefinition;
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.LookupOverride;
 import spring.ls.beans.MethodOverrides;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
-import spring.ls.beans.factory.config.GenericBeanDefinition;
+import spring.ls.beans.factory.support.AbstractBeanDefinition;
+import spring.ls.beans.factory.support.GenericBeanDefinition;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.StringUtils;
 

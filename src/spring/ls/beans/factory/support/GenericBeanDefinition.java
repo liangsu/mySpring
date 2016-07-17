@@ -1,6 +1,4 @@
-package spring.ls.beans.factory.config;
-
-import spring.ls.beans.AbstractBeanDefinition;
+package spring.ls.beans.factory.support;
 
 public class GenericBeanDefinition extends AbstractBeanDefinition{
 	

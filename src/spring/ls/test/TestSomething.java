@@ -9,7 +9,7 @@ import spring.ls.core.io.ClassPathResource;
 public class TestSomething {
 
 	@Test
-	public void test1(){
+	public void test1() throws Exception{
 		BeanFactory factory = new XmlBeanFactory(new ClassPathResource("beans.xml"));
 		SayHello hello = (SayHello) factory.getBean("sayHello");
 		hello.say();

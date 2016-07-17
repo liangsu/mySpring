@@ -7,9 +7,9 @@ import java.util.List;
 
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
-import spring.ls.beans.factory.config.GenericBeanDefinition;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.beans.factory.support.BeanDefinitionRegistryUtils;
+import spring.ls.beans.factory.support.GenericBeanDefinition;
 import spring.ls.util.ClassUtils;
 import spring.ls.util.PathUtil;
 
