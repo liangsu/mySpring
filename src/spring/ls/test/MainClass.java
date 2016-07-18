@@ -19,7 +19,10 @@ public class MainClass {
 //		System.out.println(dog);
 //		System.out.println(dog2);
 		
-		User user = (User)factory.getBean("teacher");
-		user.showMe();
+//		User user = (User)factory.getBean("teacher");
+//		user.showMe();
+		
+		User zhangsan = (User) factory.getBean("zhangsan");
+		System.out.println(zhangsan);
 	}
 }

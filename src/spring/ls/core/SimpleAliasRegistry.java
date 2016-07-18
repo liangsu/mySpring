@@ -26,7 +26,7 @@ public class SimpleAliasRegistry implements AliasRegistry{
 	 * @param name
 	 * @return
 	 */
-	public String cononicalName(String name) {
+	protected String cononicalName(String name) {
 		String cononicalName = name;
 		String resovlerName;
 		do{

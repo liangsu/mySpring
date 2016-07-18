@@ -10,6 +10,6 @@
 	<!-- <bean name="user" class="spring.ls.test.User" scope="prototype" >
 	</bean> -->
 	
-	<user:teacher id="teacher" name="教师" email="123456@qq.com" />
+	
 	
 </beans>

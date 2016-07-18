@@ -3,17 +3,19 @@ package spring.ls.beans.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import spring.ls.beans.BeanDefinition;
-import spring.ls.beans.BeanUtils;
 import spring.ls.beans.BeansException;
+import spring.ls.beans.factory.config.ConstructorArgumentValues;
+import spring.ls.beans.factory.config.TypedStringValue;
+import spring.ls.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
 import spring.ls.beans.factory.support.FactoryBeanRegistrySupport;
+import spring.ls.beans.factory.support.InstantiationStrategy;
 import spring.ls.beans.factory.support.RootBeanDefinition;
+import spring.ls.beans.factory.support.SimpleInstantiationStrategy;
 import spring.ls.util.ObjectUtils;
 import spring.ls.util.StringUtils;
 
@@ -23,16 +25,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/** 将parent合并后的beanDefinition */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new HashMap<String, RootBeanDefinition>();
 	
-	/** 用来存储单例对象，包含：单例bean、单例factoryBean */
-	private final Map<String, Object> singletonObjects = new HashMap<String, Object>();
-	private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>();
-	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<String, ObjectFactory<?>>();
-
-	/** 保存了注册了的单例bean顺序 */
-	private final Set<String> registeredSingletons = new LinkedHashSet<String>(64);
-	
-	/** 用来存储factoryBean的getObject()返回的对象 */
-	private final Map<String, Object> factoryBeanObjectCache = new HashMap<String, Object>();
+	/** 实例化策略 */
+	private InstantiationStrategy instantiationStrategy;
 	
 	// ---
 	private static Map<String, Object> cacheBeans = new HashMap<String, Object>(4);
@@ -45,21 +39,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws Exception {
 		beanDefinitionMap.put(beanName, beanDefinition);
 		System.out.println("注册了bean："+beanName+"["+beanDefinition+"]");
-	}
-	
-	/**
-	 * 注册bean
-	 * @param name
-	 * @param instance
-	 * @param scope
-	 * @throws Exception
-	 */
-	private void registerBean(String name,Object instance,String scope) throws Exception{
-		if(scope.equals(SCOPE_PROTOTYPE)){
-			beans.put(name, instance);
-		}else if(scope.equals(SCOPE_SINGLETON)){
-			singletonObjects.put(name, instance);
-		}
 	}
 	
 	@Override
@@ -95,21 +74,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 				});
 				
-//				Class<?> clazz = mbd.getBeanClass();
-//				try {
-//					bean = clazz.newInstance();
-//				} catch (Exception e) {
-//					throw new BeansException("bean加载失败!");
-//				}
-				
 			}else if( mbd.isPrototype()){
 				
-//				Class<?> clazz = mbd.getBeanClass();
-//				try {
-//					bean = clazz.newInstance();
-//				} catch (Exception e) {
-//					throw new BeansException("bean加载失败!");
-//				}
 				
 			}else{
 				
@@ -121,37 +87,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 		
 		return bean;
-	}
-
-	/**
-	 * 创建bean，检测循环依赖
-	 * @param beanName
-	 * @param objectFactory
-	 * @return
-	 * @throws BeansException
-	 */
-	private Object getSingleton(String beanName, ObjectFactory<Object> objectFactory) throws BeansException {
-		
-		//首先检查对应的bean是否已经加载过了，因为singleton模式就是复用已创建的bean，所以这一步是必须的
-		Object singletonObject = this.singletonObjects.get(beanName);
-		if(singletonObject == null){
-			
-			singletonObject = objectFactory.getObject();
-			if(singletonObject == null){
-				throw new BeansException("创建失败"+beanName);
-			}
-			
-			addSingleton(beanName, singletonObject);
-		}
-		
-		return singletonObject;
-	}
-
-	public void addSingleton(String beanName, Object singletonObject) {
-		this.singletonObjects.put(beanName, singletonObject);
-		this.earlySingletonObjects.remove(beanName);
-		this.singletonFactories.remove(beanName);
-		this.registeredSingletons.add(beanName);
 	}
 
 	public RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
@@ -203,27 +138,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return bd;
 	}
 
-	public Object getSingleton(String beanName) throws BeansException {
-		Object singletonObject = this.singletonObjects.get(beanName);
-		
-		if(singletonObject == null){
-			singletonObject = this.earlySingletonObjects.get(beanName);
-			
-			if(singletonObject == null){
-				ObjectFactory<?> objectFactory = this.singletonFactories.get(beanName);
-				
-				if(objectFactory != null){
-					singletonObject = objectFactory.getObject();
-					this.earlySingletonObjects.put(beanName, singletonObject);
-					this.singletonFactories.remove(beanName);
-				}
-			}
-			
-		}
-		return singletonObject;
-	}
-
-
 	public Object getObjectForBeanInstance(Object beanInstance, String name, String beanName, Object mbd) throws BeansException {
 		
 		//&name -> factory || &name -> bean || name -> bean || name -> factory || 
@@ -247,7 +161,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		//到这里，可以明确是获取name -> factory
 		Object object = null;
 		
-		object = factoryBeanObjectCache.get(name);
+		object = getCachedObjectForFactoryBean(name);
 		
 		if(object == null){
 			
@@ -262,41 +176,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return object;
 	}
 
-	public Object getObjectFromFactoryBean(FactoryBean<?> factoryBean, String beanName) throws BeansException {
-		
-		//如果是单例
-		if( factoryBean.isSingleton()){
-			
-			Object object = this.factoryBeanObjectCache.get(beanName);
-			if(object == null){
-				
-				object = doGetObjectFromFactoryBean(factoryBean, beanName);
-				
-				this.factoryBeanObjectCache.put(beanName, object);
-			}
-			return object;
-		}
-		else {
-			
-			Object object = doGetObjectFromFactoryBean(factoryBean, beanName);
-			
-			return object;
-		}
-	}
-	
-	public Object doGetObjectFromFactoryBean(FactoryBean<?> factoryBean, String beanName) throws BeansException{
-		Object object;
-		
-		try {
-			object = factoryBean.getObject();
-		} catch (Exception e) {
-			throw new BeansException("创建beanName："+beanName+"失败!");
-		}
-		
-		//TODO 调用objectFactory的后处理器
-		
-		return object;
-	}
 	
 	public Object createBean(final String beanName,final RootBeanDefinition mbd) throws BeansException {
 		//TODO 验证及准备覆盖的方法
@@ -345,49 +224,118 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		if(resolved){
 			if(autowireNecessary){
 				//TODO
-				return null;
+				return autowireConstructor(beanName, mbd, null, null);
 			}else{
 				return instantiateBean(beanName, mbd);
 			}
 		}
 		
-//		Constructor[] ctors = beanClass.getDeclaredConstructors();
-//		if(ctors != null || !ObjectUtils.isEmpty(args)){
-//			
-//		}
+		Constructor<?>[] ctors = beanClass.getDeclaredConstructors();
+		if((ctors != null && ctors.length > 1)
+				|| !ObjectUtils.isEmpty(args) ){
+			
+			return autowireConstructor(beanName, mbd, ctors, args);
+		}
 		
 		return instantiateBean(beanName, mbd);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Object autowireConstructor(String beanName, RootBeanDefinition mbd, Constructor[] chosenCtors, Object[] explicitArgs) throws BeansException{
+		
+		Constructor<?> constructorToUse = null;
+		Object[] argsToUse = null;
+		
+		if(explicitArgs != null){
+			argsToUse = explicitArgs;
+		}else{
+			
+			Object[] argsToResolve = null;
+			synchronized (mbd.constructorArgumentLock) {
+				constructorToUse = (Constructor<?>) mbd.resolvedConstructorOrFactoryMethod;
+				if( constructorToUse != null && mbd.constructorArgumentsResolved){
+					argsToUse = mbd.resolvedConstructorArguments;
+					if(argsToUse == null){
+						argsToResolve = mbd.preparedConstructorArguments;
+					}
+				}
+			}
+			
+			if(argsToResolve != null){
+				argsToUse = resolvePreparedArguments(beanName, mbd, constructorToUse, argsToResolve);
+			}
+			
+		}
+		
+		if(constructorToUse == null){
+			
+			Class<?> beanClass = mbd.getBeanClass();
+			Constructor[] ctors = beanClass.getConstructors();
+			ConstructorArgumentValues constructorArgumentValues = mbd.getConstructorArgumentValues();
+			int argsLength = constructorArgumentValues.getIndexedArgumentValues().keySet().size();
+			
+			for (Constructor ctor : ctors) {
+				if(ctor.getParameterTypes().length == argsLength){
+					constructorToUse = ctor;
+					break;
+				}
+			}
+			
+			
+			if(constructorToUse == null){
+				throw new IllegalStateException(beanName+"构造方法没找到");
+			}
+			
+			Map<Integer, ValueHolder> valueMap = mbd.getConstructorArgumentValues().getIndexedArgumentValues();
+			Object[] argsToResolve = new Object[argsLength];
+			for(int i = 0; i < argsLength; i++){
+				argsToResolve[i] = valueMap.get(new Integer(i)).getValue();
+			}
+			argsToUse = resolvePreparedArguments(beanName, mbd, constructorToUse, argsToResolve);
+		}
+		
+		return getInstantiationStrategy().instantiate(mbd, beanName, this, constructorToUse, argsToUse);
+	}
+
+	private Object[] resolvePreparedArguments(String beanName, RootBeanDefinition mbd, 
+			Constructor<?> constructorToUse,Object[] argsToResolve) {
+		
+		Object[] argsToUse = new Object[argsToResolve.length];
+		Class<?>[] paramTypes = constructorToUse.getParameterTypes();
+		for(int i = 0; i < argsToResolve.length; i++){
+			Class<?> paramType = paramTypes[i];
+			argsToUse[i] = convertIfNecessary(paramType, argsToResolve[i]);
+		}
+		
+		return argsToUse;
+	}
+
+	private Object convertIfNecessary(Class<?> paramType, Object object) {
+		
+		if(object instanceof TypedStringValue){
+			TypedStringValue value = (TypedStringValue) object;
+			if( "int".equals(paramType.getCanonicalName())){
+				int arg = Integer.parseInt(value.getValue());
+				return arg;
+			}else if("java.lang.Integer".equals(paramType.getCanonicalName())){
+				return Integer.parseInt(value.getValue());
+			}else if("java.lang.String".equals(paramType.getCanonicalName())){
+				return value.getValue();
+			}
+		}
+		
+		return null;
 	}
 
 	public Object instantiateBean(String beanName, RootBeanDefinition bd) throws BeansException {
 		
-		if(bd.getMethodOverrides().isEmpty()){
-			Constructor<?> constructorToUse;
-			//解析默认的构造方法
-			synchronized (bd.constructorArgumentLock) {
-				constructorToUse = (Constructor<?>) bd.resolvedConstructorOrFactoryMethod;
-				if(constructorToUse == null){
-					Class<?> beanClass = bd.getBeanClass();
-					if(beanClass.isInterface()){
-						throw new BeansException("你初始化的bean："+beanName+"是一个接口");
-					}
-					
-					try {
-						constructorToUse = beanClass.getDeclaredConstructor();
-						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
-					} catch (Exception e) {
-						throw new BeansException(beanClass+"没有找到默认的构造方法");
-					}
-				}
-			}
-			return BeanUtils.instantiateClass(constructorToUse);
-			
-		}else{
-			return instantiateWithMethodInjection(beanName, bd);
-		}
+		return getInstantiationStrategy().instantiate(bd, beanName, this);
 	}
 
-	public Object instantiateWithMethodInjection(String beanName, RootBeanDefinition bd) {
-		throw new UnsupportedOperationException("Method Injection not supported in SimpleInstantiationStrategy");
+	public InstantiationStrategy getInstantiationStrategy() {
+		if(this.instantiationStrategy == null){
+			this.instantiationStrategy = new SimpleInstantiationStrategy();
+		}
+		return this.instantiationStrategy;
 	}
 }

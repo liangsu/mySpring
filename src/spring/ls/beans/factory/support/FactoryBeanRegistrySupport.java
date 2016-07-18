@@ -15,7 +15,7 @@ public class FactoryBeanRegistrySupport extends DefaultSingletonBeanRegistry{
 		return this.factoryBeanObjectCache.get(name);
 	}
 	
-	public Object getObjectFromFactoryBean(FactoryBean<?> factoryBean, String beanName) throws BeansException {
+	protected Object getObjectFromFactoryBean(FactoryBean<?> factoryBean, String beanName) throws BeansException {
 		
 		//如果是单例
 		if( factoryBean.isSingleton()){

@@ -23,8 +23,8 @@ public class ConstructorArgumentValues {
 		super();
 	}
 	
-	public ConstructorArgumentValues(ConstructorArgumentValues original) {
-
+	public ConstructorArgumentValues(ConstructorArgumentValues other) {
+		addArgumentValues(other);
 	}
 	
 	public void addArgumentValues(ConstructorArgumentValues other) {
@@ -176,5 +176,9 @@ public class ConstructorArgumentValues {
 			copy.setSource(this.source);
 			return copy;
 		}
+	}
+
+	public Map<Integer, ValueHolder> getIndexedArgumentValues() {
+		return indexedArgumentValues;
 	}
 }

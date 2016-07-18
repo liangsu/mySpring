@@ -8,5 +8,12 @@
 	
 	<bean name="sayHello" class="spring.ls.test.SayHello" scope="singleton" >
 	</bean>
-
+	
+	<!-- <user:teacher id="teacher" name="教师" email="123456@qq.com" /> -->
+	
+	<bean name="zhangsan" class="spring.ls.test.User">
+		<constructor-arg index="0" value="张三" />
+		<constructor-arg index="1" value="22" />
+	</bean>
+	
 </beans>

@@ -12,6 +12,12 @@ public class RootBeanDefinition extends AbstractBeanDefinition{
 	/** 标记是否有构造方法注入 */
 	public boolean constructorArgumentsResolved = false;
 	
+	/** 解析出来的构造方法的参数 */
+	public Object[] resolvedConstructorArguments;
+	
+	/** 解析出来的构造方法的参数，但是参数类型不一定对应 */
+	public Object[] preparedConstructorArguments;
+	
 	public RootBeanDefinition(BeanDefinition original){
 		super(original);
 	}
