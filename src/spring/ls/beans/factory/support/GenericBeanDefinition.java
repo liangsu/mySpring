@@ -15,4 +15,5 @@ public class GenericBeanDefinition extends AbstractBeanDefinition{
 	public void setParentName(String parentName) {
 		this.parentName = parentName;
 	}
+
 }

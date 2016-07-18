@@ -1,5 +1,7 @@
 package spring.ls.beans;
 
+import spring.ls.beans.factory.config.ConstructorArgumentValues;
+
 /**
  * 用于bean信息的描述
  * @author Administrator
@@ -33,4 +35,17 @@ public interface BeanDefinition extends AttributeAccessor{
 	boolean isPrototype();
 	
 	boolean isSingleton();
+	
+	String getFactoryBeanName();
+	
+	void setFactoryBeanName(String factoryBeanName);
+	
+	String getFactoryMethodName();
+	
+	void setFactoryMethodName(String factoryMethodName);
+	
+	ConstructorArgumentValues getConstructorArgumentValues();
+	
+	MutablePropertyValues getPropertyValues();
+	
 }

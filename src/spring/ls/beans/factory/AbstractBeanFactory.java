@@ -12,13 +12,13 @@ import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanUtils;
 import spring.ls.beans.BeansException;
 import spring.ls.beans.factory.support.BeanDefinitionRegistry;
+import spring.ls.beans.factory.support.FactoryBeanRegistrySupport;
 import spring.ls.beans.factory.support.RootBeanDefinition;
 import spring.ls.util.ObjectUtils;
 import spring.ls.util.StringUtils;
 
-public abstract class AbstractBeanFactory extends DefaultConfiguration implements BeanFactory<Object>,BeanDefinitionRegistry{
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements BeanFactory<Object>,BeanDefinitionRegistry{
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(64);
-	private final Map<String, String> aliases = new HashMap<String,String>();
 	
 	/** 将parent合并后的beanDefinition */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new HashMap<String, RootBeanDefinition>();
@@ -45,18 +45,6 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws Exception {
 		beanDefinitionMap.put(beanName, beanDefinition);
 		System.out.println("注册了bean："+beanName+"["+beanDefinition+"]");
-	}
-	
-	@Override
-	public void registerAlias(String beanName, String alias) throws Exception {
-		String oldBeanName = aliases.get(alias);
-		if(oldBeanName != null){
-			if(!beanName.equals(oldBeanName)){
-				throw new Exception(alias + "已经被注册了!");
-			}
-		}else{
-			aliases.put(alias, beanName);
-		}
 	}
 	
 	/**
@@ -235,22 +223,6 @@ public abstract class AbstractBeanFactory extends DefaultConfiguration implement
 		return singletonObject;
 	}
 
-	/**
-	 * 通过别名获取beanName
-	 * @param name
-	 * @return
-	 */
-	public String cononicalName(String name) {
-		String cononicalName = name;
-		String resovlerName;
-		do{
-			resovlerName = this.aliases.get(cononicalName);
-			if(StringUtils.hasLength(resovlerName)){
-				cononicalName = resovlerName;
-			}
-		}while( resovlerName != null);
-		return cononicalName;
-	}
 
 	public Object getObjectForBeanInstance(Object beanInstance, String name, String beanName, Object mbd) throws BeansException {
 		

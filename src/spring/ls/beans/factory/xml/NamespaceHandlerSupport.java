@@ -27,7 +27,8 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler{
 		String localName = parserContext.getDelegate().getLocalName(ele);
 		BeanDefinitionParser parser = parsers.get(localName);
 		if(parser == null){
-			//TODO 错误日志
+			//TODO 错误处理
+			
 		}
 		return parser;
 	}

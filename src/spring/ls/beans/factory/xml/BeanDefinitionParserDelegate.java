@@ -12,6 +12,7 @@ import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.LookupOverride;
 import spring.ls.beans.MethodOverrides;
+import spring.ls.beans.PropertyValue;
 import spring.ls.beans.factory.config.BeanDefinitionHolder;
 import spring.ls.beans.factory.config.ConstructorArgumentValues;
 import spring.ls.beans.factory.config.RuntimeBeanReference;
@@ -77,6 +78,7 @@ public class BeanDefinitionParserDelegate {
 		parseConstructorArgElements(ele, bd);
 		
 		//解析property子元素
+		parsePropertyElements(ele, bd);
 		
 		//解析qualifier子元素
 		
@@ -137,7 +139,7 @@ public class BeanDefinitionParserDelegate {
 				String beanName = element.getAttribute("bean");
 				LookupOverride lookupOverride = new LookupOverride(methodName, beanName);
 				lookupOverride.setSource(element);
-				methodOverrides.addMethodOverride(lookupOverride);
+				methodOverrides.addOverride(lookupOverride);
 			}
 		}
 	}
@@ -314,9 +316,47 @@ public class BeanDefinitionParserDelegate {
 			return null;
 			
 		}else{
-			error("不能够解析", ele);
+			error(ele.getNodeName()+"不能够解析", ele);
 			return null;
 		}
+	}
+	
+	/**
+	 * 解析bean下的property元素
+	 * @param beanEle
+	 * @param bd
+	 */
+	private void parsePropertyElements(Element beanEle, AbstractBeanDefinition bd) {
+		NodeList nodes = beanEle.getChildNodes();
+		for(int i = 0; i < nodes.getLength(); i++){
+			Node node = nodes.item(i);
+			if(isCandidateElement(node) && nodeNameEqual(node, "property")){
+				parsePropertyElement((Element) node, bd);
+			}
+		}
+	}
+	
+	/**
+	 * 解析property元素
+	 * @param ele
+	 * @param bd
+	 */
+	private void parsePropertyElement(Element ele, AbstractBeanDefinition bd) {
+		String propertyName = ele.getAttribute("name");
+		if( !StringUtils.hasLength(propertyName)){
+			error("property元素的name不能为空", ele);
+			return;
+		}
+		
+		if(bd.getPropertyValues().contains(propertyName)){
+			error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
+			return;
+		}
+		
+		Object value = parsePropertyValue(ele, bd, propertyName);
+		PropertyValue pv = new PropertyValue(propertyName, value);
+		pv.setSource(ele);
+		bd.getPropertyValues().addPropertyValue(pv);
 	}
 
 	/**

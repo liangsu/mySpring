@@ -3,6 +3,8 @@ package spring.ls.beans.factory.support;
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.MethodOverrides;
+import spring.ls.beans.MutablePropertyValues;
+import spring.ls.beans.PropertyValue;
 import spring.ls.beans.factory.config.ConstructorArgumentValues;
 
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
@@ -11,32 +13,43 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	
 	private String scope;
 	
-	private MethodOverrides methodOverrides = new MethodOverrides();
-	
-	private ConstructorArgumentValues constructorArgumentValues;
-	
 	private String factoryBeanName;
 	
 	private String factoryMethodName;
 	
+	/** 构造方法 */
+	private ConstructorArgumentValues constructorArgumentValues;
+	
+	/** 属性 */
+	private MutablePropertyValues propertyValues;
+	
+	/** 重写的方法 */
+	private MethodOverrides methodOverrides = new MethodOverrides();
+	
+	
 	protected AbstractBeanDefinition() {
-		this((ConstructorArgumentValues)null);
+		this(null, null);
 	}
 	
-	protected AbstractBeanDefinition(ConstructorArgumentValues cav){
+	protected AbstractBeanDefinition(ConstructorArgumentValues cav, MutablePropertyValues mpv){
 		setConstructorArgumentValues(cav);
+		setPropertyValues(mpv);
 	}
 	
 	public AbstractBeanDefinition(BeanDefinition original){
 		setBeanClassName(original.getBeanClassName());
 		setScope(original.getScope());
+		setFactoryBeanName(original.getFactoryBeanName());
+		setFactoryMethodName(original.getFactoryMethodName());
+		setPropertyValues(new MutablePropertyValues(original.getPropertyValues()));
+		setConstructorArgumentValues(new ConstructorArgumentValues(original.getConstructorArgumentValues()));
 		
 		if(original instanceof AbstractBeanDefinition){
-			AbstractBeanDefinition bd = (AbstractBeanDefinition) original;
-			if(bd.hasBeanClass()){
-				setBeanClass(bd.getBeanClass());
+			AbstractBeanDefinition originalAbd = (AbstractBeanDefinition) original;
+			if(originalAbd.hasBeanClass()){
+				setBeanClass(originalAbd.getBeanClass());
 			}
-			setMethodOverrides(bd.getMethodOverrides());
+			setMethodOverrides(new MethodOverrides(originalAbd.getMethodOverrides()));
 		}
 	}
 	
@@ -125,5 +138,14 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	public void setConstructorArgumentValues(ConstructorArgumentValues constructorArgumentValues) {
 		this.constructorArgumentValues = (constructorArgumentValues != null ? constructorArgumentValues : new ConstructorArgumentValues());
+	}
+	
+	@Override
+	public MutablePropertyValues getPropertyValues() {
+		return this.propertyValues;
+	}
+
+	public void setPropertyValues(MutablePropertyValues propertyValues) {
+		this.propertyValues = (propertyValues != null ? propertyValues : new MutablePropertyValues());
 	}
 }

@@ -5,21 +5,35 @@ import java.util.Set;
 
 public class MethodOverrides {
 
-	Set<MethodOverride> methodOverrides = new HashSet<MethodOverride>();
+	Set<MethodOverride> overrides = new HashSet<MethodOverride>();
 
-	public Set<MethodOverride> getMethodOverrides() {
-		return methodOverrides;
-	}
-
-	public void setMethodOverrides(Set<MethodOverride> methodOverrides) {
-		this.methodOverrides = methodOverrides;
+	public MethodOverrides(){
+		
 	}
 	
-	public void addMethodOverride(MethodOverride methodOverride){
-		this.methodOverrides.add(methodOverride);
+	public MethodOverrides(MethodOverrides other){
+		addOverrides(other);
+	}
+	
+	public Set<MethodOverride> getOverrides() {
+		return overrides;
+	}
+
+	public void setOverrides(Set<MethodOverride> overrides) {
+		this.overrides = overrides;
+	}
+	
+	public void addOverride(MethodOverride overrides){
+		this.overrides.add(overrides);
+	}
+	
+	public void addOverrides(MethodOverrides other){
+		if(other != null){
+			this.overrides.addAll(other.getOverrides());
+		}
 	}
 	
 	public boolean isEmpty(){
-		return this.methodOverrides.isEmpty();
+		return this.overrides.isEmpty();
 	}
 }

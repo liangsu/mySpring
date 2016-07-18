@@ -1,6 +1,7 @@
 package spring.ls.beans.factory.config;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,52 @@ public class ConstructorArgumentValues {
 	
 	public ConstructorArgumentValues() {
 		super();
+	}
+	
+	public ConstructorArgumentValues(ConstructorArgumentValues original) {
+
+	}
+	
+	public void addArgumentValues(ConstructorArgumentValues other) {
+		if (other != null) {
+			for (Map.Entry<Integer, ValueHolder> entry : other.indexedArgumentValues.entrySet()) {
+				addOrMergeIndexedArgumentValue(entry.getKey(), entry.getValue().copy());
+			}
+			for (ValueHolder valueHolder : other.genericArgumentValues) {
+				if (!this.genericArgumentValues.contains(valueHolder)) {
+					addOrMergeGenericArgumentValue(valueHolder.copy());
+				}
+			}
+		}
+	}
+	
+	private void addOrMergeIndexedArgumentValue(Integer key, ValueHolder newValue) {
+		ValueHolder currentValue = this.indexedArgumentValues.get(key);
+//		if (currentValue != null && newValue.getValue() instanceof Mergeable) {
+//			Mergeable mergeable = (Mergeable) newValue.getValue();
+//			if (mergeable.isMergeEnabled()) {
+//				newValue.setValue(mergeable.merge(currentValue.getValue()));
+//			}
+//		}
+		this.indexedArgumentValues.put(key, newValue);
+	}
+	
+	private void addOrMergeGenericArgumentValue(ValueHolder newValue) {
+		if (newValue.getName() != null) {
+			for (Iterator<ValueHolder> it = this.genericArgumentValues.iterator(); it.hasNext();) {
+				ValueHolder currentValue = it.next();
+				if (newValue.getName().equals(currentValue.getName())) {
+//					if (newValue.getValue() instanceof Mergeable) {
+//						Mergeable mergeable = (Mergeable) newValue.getValue();
+//						if (mergeable.isMergeEnabled()) {
+//							newValue.setValue(mergeable.merge(currentValue.getValue()));
+//						}
+//					}
+					it.remove();
+				}
+			}
+		}
+		this.genericArgumentValues.add(newValue);
 	}
 	
 	public boolean hasIndexedArgumentValue(int index){
@@ -62,13 +109,13 @@ public class ConstructorArgumentValues {
 			this.value = value;
 		}
 
-		public ValueHolder(String name, String value) {
+		public ValueHolder(String name, Object value) {
 			super();
 			this.name = name;
 			this.value = value;
 		}
 
-		public ValueHolder(String name, String type, String value) {
+		public ValueHolder(String name, String type, Object value) {
 			super();
 			this.name = name;
 			this.type = type;
@@ -124,5 +171,10 @@ public class ConstructorArgumentValues {
 			this.value = value;
 		}
 		
+		public ValueHolder copy() {
+			ValueHolder copy = new ValueHolder(this.name, this.type, this.value);
+			copy.setSource(this.source);
+			return copy;
+		}
 	}
 }
