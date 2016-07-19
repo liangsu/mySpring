@@ -17,6 +17,12 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	
 	private String factoryMethodName;
 	
+	/** 返回是否允许访问非公有的构造函数和方法*/
+	private boolean nonPublicAccessAllowed = true;
+	
+	/** 是在宽松模式还是严格模式解决构造方法 */
+	private boolean lenientConstructorResolution = true;
+	
 	/** 构造方法 */
 	private ConstructorArgumentValues constructorArgumentValues;
 	
@@ -147,5 +153,21 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 
 	public void setPropertyValues(MutablePropertyValues propertyValues) {
 		this.propertyValues = (propertyValues != null ? propertyValues : new MutablePropertyValues());
+	}
+
+	/**
+	 * 返回是否允许访问非公有的构造函数和方法
+	 * @return
+	 */
+	public boolean isNonPublicAccessAllowed() {
+		return nonPublicAccessAllowed;
+	}
+
+	/**
+	 * 是在宽松模式还是严格模式解决构造方法
+	 * @return
+	 */
+	public boolean isLenientConstructorResolution() {
+		return lenientConstructorResolution;
 	}
 }

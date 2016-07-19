@@ -14,6 +14,7 @@
 	<bean name="zhangsan" class="spring.ls.test.User">
 		<constructor-arg index="0" value="张三" />
 		<constructor-arg index="1" value="22" />
+		<constructor-arg index="2" value="12345@qq.com" />
 	</bean>
 	
 </beans>

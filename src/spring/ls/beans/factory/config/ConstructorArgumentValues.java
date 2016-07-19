@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import spring.ls.beans.BeanMetadataElement;
+import spring.ls.util.ClassUtils;
 
 /**
  * 描述了构造方法的参数
@@ -180,5 +182,58 @@ public class ConstructorArgumentValues {
 
 	public Map<Integer, ValueHolder> getIndexedArgumentValues() {
 		return indexedArgumentValues;
+	}
+
+	public int getArgumentCount() {
+		return (indexedArgumentValues.size() + genericArgumentValues.size());
+	}
+
+	public List<ValueHolder> getGenericArgumentValues() {
+		return genericArgumentValues;
+	}
+
+	public ValueHolder getArgumentValue(int index, Class<?> requiredType, String requiredName,
+			Set<ValueHolder> usedValueHolders) {
+		ValueHolder valueHolder = getIndexArgumentValue(index, requiredType, requiredName);
+		if(valueHolder == null){
+			valueHolder = getGenericArgumentValue(requiredType, requiredName, usedValueHolders);
+		}
+		return valueHolder;
+	}
+	
+	public ValueHolder getIndexArgumentValue(int index, Class<?> requiredType, String requiredName){
+		ValueHolder valueHolder = this.indexedArgumentValues.get(index);
+		if( valueHolder != null &&
+				(valueHolder.getType() == null || 
+						(requiredType != null && ClassUtils.matchesTypeName(requiredType, valueHolder.getType()))) &&
+				(valueHolder.getName() == null ||
+						(requiredName != null && requiredName.equals(valueHolder.getName())))
+				){
+			
+			return valueHolder;
+		}
+		return null;
+	}
+	
+	public ValueHolder getGenericArgumentValue(Class<?> requiredType, String requiredName, Set<ValueHolder> usedValueHolders) {
+		for (ValueHolder valueHolder : this.genericArgumentValues) {
+			if (usedValueHolders != null && usedValueHolders.contains(valueHolder)) {
+				continue;
+			}
+			if (valueHolder.getName() != null &&
+					(requiredName == null || !valueHolder.getName().equals(requiredName))) {
+				continue;
+			}
+			if (valueHolder.getType() != null &&
+					(requiredType == null || !ClassUtils.matchesTypeName(requiredType, valueHolder.getType()))) {
+				continue;
+			}
+			if (requiredType != null && valueHolder.getType() == null && valueHolder.getName() == null &&
+					!ClassUtils.isAssignableValue(requiredType, valueHolder.getValue())) {
+				continue;
+			}
+			return valueHolder;
+		}
+		return null;
 	}
 }

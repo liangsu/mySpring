@@ -46,5 +46,5 @@ public class RootBeanDefinition extends AbstractBeanDefinition{
 			setMethodOverrides(abd.getMethodOverrides());
 		}
 	}
-	
+
 }

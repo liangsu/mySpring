@@ -1,8 +1,9 @@
 package spring.ls.beans.factory;
 
 import spring.ls.annotation.ScanfAnnotation;
+import spring.ls.beans.factory.support.AbstractAutowireCapableBeanFactory;
 
-public class AnnotationBeanFactory extends AbstractBeanFactory {
+public class AnnotationBeanFactory extends AbstractAutowireCapableBeanFactory {
 	
 	ScanfAnnotation scanfAnnotation = new ScanfAnnotation(this,"spring.ls");
 	
@@ -13,5 +14,5 @@ public class AnnotationBeanFactory extends AbstractBeanFactory {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

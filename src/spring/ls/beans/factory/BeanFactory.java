@@ -2,7 +2,7 @@ package spring.ls.beans.factory;
 
 import spring.ls.beans.BeansException;
 
-public interface BeanFactory<T> {
+public interface BeanFactory {
 	
 	String FACTORY_BEAN_PREFIX = "&";
 	
@@ -12,5 +12,5 @@ public interface BeanFactory<T> {
 //	
 //	boolean isSingleton();
 	
-	T getBean(String alias) throws BeansException;
+	Object getBean(String alias) throws BeansException;
 }
