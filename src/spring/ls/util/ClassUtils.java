@@ -155,8 +155,8 @@ public class ClassUtils {
 	 * @see TypeUtils#isAssignable
 	 */
 	public static boolean isAssignable(Class<?> lhsType, Class<?> rhsType) {
-//		Assert.notNull(lhsType, "Left-hand side type must not be null");
-//		Assert.notNull(rhsType, "Right-hand side type must not be null");
+		Assert.notNull(lhsType, "Left-hand side type must not be null");
+		Assert.notNull(rhsType, "Right-hand side type must not be null");
 		if (lhsType.isAssignableFrom(rhsType)) {
 			return true;
 		}
@@ -173,5 +173,32 @@ public class ClassUtils {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Resolve the given class name into a Class instance. Supports
+	 * primitives (like "int") and array class names (like "String[]").
+	 * <p>This is effectively equivalent to the {@code forName}
+	 * method with the same arguments, with the only difference being
+	 * the exceptions thrown in case of class loading failure.
+	 * @param className the name of the Class
+	 * @param classLoader the class loader to use
+	 * (may be {@code null}, which indicates the default class loader)
+	 * @return Class instance for the supplied name
+	 * @throws IllegalArgumentException if the class name was not resolvable
+	 * (that is, the class could not be found or the class file could not be loaded)
+	 * @see #forName(String, ClassLoader)
+	 */
+	public static Class<?> resolveClassName(String className, ClassLoader classLoader) throws IllegalArgumentException {
+		try {
+			return forName(className, classLoader);
+		}
+		catch (ClassNotFoundException ex) {
+			throw new IllegalArgumentException("Cannot find class [" + className + "]", ex);
+		}
+		catch (LinkageError ex) {
+			throw new IllegalArgumentException(
+					"Error loading class [" + className + "]: problem with class file or dependent class.", ex);
+		}
 	}
 }

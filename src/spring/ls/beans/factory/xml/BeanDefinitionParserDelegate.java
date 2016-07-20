@@ -251,9 +251,9 @@ public class BeanDefinitionParserDelegate {
 			
 		}else if(hasRefAttribute){
 			//ref属性的处理，使用RuntimeBeanReference封装对应的ref名称
-			String refName = ele.getAttribute("value");
+			String refName = ele.getAttribute("ref");
 			if( !StringUtils.hasText(refName)){
-				error(elementName+"value的值不能为空", ele);
+				error(elementName+"ref的值不能为空", ele);
 			}
 			RuntimeBeanReference ref = new RuntimeBeanReference(refName);
 			ref.setSource(ele);

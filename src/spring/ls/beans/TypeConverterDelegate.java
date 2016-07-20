@@ -7,6 +7,19 @@ import spring.ls.core.MethodParameter;
 
 public class TypeConverterDelegate {
 
+	private final PropertyEditorRegistrySupport propertyEditorRegistry;
+
+	private final Object targetObject;
+	
+	public TypeConverterDelegate(PropertyEditorRegistrySupport propertyEditorRegistry){
+		this(propertyEditorRegistry, null);
+	}
+	
+	public TypeConverterDelegate(PropertyEditorRegistrySupport propertyEditorRegistry,Object targetObject) {
+		this.propertyEditorRegistry = propertyEditorRegistry;
+		this.targetObject = targetObject;
+	}
+
 	public <T> T convertIfNecessary(Object value, Class<T> requiredType, Field field) {
 
 		return null;
@@ -40,7 +53,7 @@ public class TypeConverterDelegate {
 			}
 		}
 		
-		return null;
+		return (T) value;
 	}
 
 }

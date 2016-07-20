@@ -6,7 +6,7 @@ public class BeanWrapperImpl extends AbstractPropertyAccessor implements BeanWra
 	private Object object;
 	
 	public BeanWrapperImpl() {
-		typeConverterDelegate = new TypeConverterDelegate();
+		typeConverterDelegate = new TypeConverterDelegate(this);
 	}
 	
 	@Override

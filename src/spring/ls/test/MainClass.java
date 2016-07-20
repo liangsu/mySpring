@@ -24,6 +24,7 @@ public class MainClass {
 		
 		User zhangsan = (User) factory.getBean("zhangsan");
 		System.out.println(zhangsan);
+		zhangsan.getStudent().showMe();
 		System.out.println(factory.getBean("zhangsan") == factory.getBean("zhangsan"));
 	}
 }
