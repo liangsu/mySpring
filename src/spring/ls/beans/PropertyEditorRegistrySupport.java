@@ -178,9 +178,11 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry{
 		if( !this.defaultEditorsActive){
 			return null;
 		}
-		PropertyEditor editor = null;
 		if(this.overriddenDefaultEditors != null){
-			editor = this.overriddenDefaultEditors.get(requiredType);
+			PropertyEditor editor = this.overriddenDefaultEditors.get(requiredType);
+			if(editor != null){
+				return editor;
+			}
 		}
 		if(this.defaultEditors == null){
 			createDefaultEditors();
@@ -245,5 +247,9 @@ public class PropertyEditorRegistrySupport implements PropertyEditorRegistry{
 			return requiredType;
 		}
 		
+	}
+
+	protected void registerDefaultEditors() {
+		this.defaultEditorsActive = true;
 	}
 }

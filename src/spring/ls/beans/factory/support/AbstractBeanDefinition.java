@@ -1,14 +1,23 @@
 package spring.ls.beans.factory.support;
 
+import java.lang.reflect.Constructor;
+
 import spring.ls.beans.BeanDefinition;
 import spring.ls.beans.BeanMetadataAttributeAccessor;
 import spring.ls.beans.MethodOverrides;
 import spring.ls.beans.MutablePropertyValues;
-import spring.ls.beans.PropertyValue;
+import spring.ls.beans.factory.config.AutowireCapableBeanFactory;
 import spring.ls.beans.factory.config.ConstructorArgumentValues;
 
 public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccessor implements BeanDefinition{
 
+	public static final int AUTOWIRE_NO = AutowireCapableBeanFactory.AUTOWIRE_NO;
+	public static final int AUTOWIRE_BY_NAME = AutowireCapableBeanFactory.AUTOWIRE_BY_NAME;
+	public static final int AUTOWIRE_BY_TYPE = AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE;
+	public static final int AUTOWIRE_CONSTRUCTOR = AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
+	@Deprecated
+	public static final int AUTOWIRE_AUTODETECT = AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT;
+	
 	private volatile Object beanClass;
 	
 	private String scope;
@@ -31,6 +40,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	
 	/** 重写的方法 */
 	private MethodOverrides methodOverrides = new MethodOverrides();
+	
+	private int autowireMode = AUTOWIRE_NO;
 	
 	
 	protected AbstractBeanDefinition() {
@@ -169,5 +180,31 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public boolean isLenientConstructorResolution() {
 		return lenientConstructorResolution;
+	}
+
+	public int getAutowireMode() {
+		return autowireMode;
+	}
+	
+	public int getResolvedAutowireMode() {
+		if (this.autowireMode == AUTOWIRE_AUTODETECT) {
+			// Work out whether to apply setter autowiring or constructor autowiring.
+			// If it has a no-arg constructor it's deemed to be setter autowiring,
+			// otherwise we'll try constructor autowiring.
+			Constructor<?>[] constructors = getBeanClass().getConstructors();
+			for (Constructor<?> constructor : constructors) {
+				if (constructor.getParameterTypes().length == 0) {
+					return AUTOWIRE_BY_TYPE;
+				}
+			}
+			return AUTOWIRE_CONSTRUCTOR;
+		}
+		else {
+			return this.autowireMode;
+		}
+	}
+
+	public void setAutowireMode(int autowireMode) {
+		this.autowireMode = autowireMode;
 	}
 }

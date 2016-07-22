@@ -1,6 +1,8 @@
 package spring.ls.beans;
 
-public interface BeanWrapper extends TypeConverter{
+import java.beans.PropertyDescriptor;
+
+public interface BeanWrapper extends ConfigurablePropertyAccessor{
 
 	/**
 	 * 获取包装类的实例
@@ -13,4 +15,10 @@ public interface BeanWrapper extends TypeConverter{
 	 * @return
 	 */
 	Class<?> getWrappedClass();
+
+	/**
+	 * 获取包装类的PropertyDescriptor
+	 * @return
+	 */
+	PropertyDescriptor[] getPropertyDescriptors();
 }

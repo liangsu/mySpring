@@ -13,4 +13,6 @@ public interface BeanFactory {
 //	boolean isSingleton();
 	
 	Object getBean(String alias) throws BeansException;
+	
+	boolean containsBean(String name);
 }

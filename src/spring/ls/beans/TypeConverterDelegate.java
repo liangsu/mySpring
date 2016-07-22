@@ -1,5 +1,6 @@
 package spring.ls.beans;
 
+import java.beans.PropertyEditor;
 import java.lang.reflect.Field;
 
 import spring.ls.beans.factory.config.TypedStringValue;
@@ -27,29 +28,11 @@ public class TypeConverterDelegate {
 
 	public <T> T convertIfNecessary(Object value, Class<T> requiredType, MethodParameter methodParam) {
 		
-		if(value instanceof TypedStringValue){
-			TypedStringValue typedStringValue = (TypedStringValue) value;
-			if( "int".equals(requiredType.getCanonicalName())){
-				Integer arg = Integer.parseInt(typedStringValue.getValue());
-				return (T)arg;
-			}else if("java.lang.Integer".equals(requiredType.getCanonicalName())){
-				Integer arg = Integer.parseInt(typedStringValue.getValue());
-				return (T) arg;
-				
-			}else if("java.lang.String".equals(requiredType.getCanonicalName())){
-				return (T) typedStringValue.getValue();
-			}
-		}else if(value instanceof String){
-			String strValue = (String) value;
-			if( "int".equals(requiredType.getCanonicalName())){
-				Integer arg = Integer.parseInt(strValue);
-				return (T)arg;
-			}else if("java.lang.Integer".equals(requiredType.getCanonicalName())){
-				Integer arg = Integer.parseInt(strValue);
-				return (T) arg;
-				
-			}else if("java.lang.String".equals(requiredType.getCanonicalName())){
-				return (T) strValue;
+		if(value instanceof String){
+			PropertyEditor editor = this.propertyEditorRegistry.getDefaultEditor(requiredType);
+			if(editor != null){
+				editor.setAsText((String)value);
+				return (T) editor.getValue();
 			}
 		}
 		

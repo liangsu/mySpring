@@ -1,23 +1,28 @@
 package spring.ls.beans.factory.support;
 
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import spring.ls.beans.BeanDefinition;
+import spring.ls.beans.BeanWrapperImpl;
 import spring.ls.beans.BeansException;
 import spring.ls.beans.TypeConverter;
 import spring.ls.beans.factory.BeanFactory;
-import spring.ls.beans.factory.BeanFactoryUtil;
+import spring.ls.beans.factory.BeanFactoryUtils;
 import spring.ls.beans.factory.FactoryBean;
 import spring.ls.beans.factory.ObjectFactory;
 import spring.ls.core.DefaultParameterNameDiscoverer;
 import spring.ls.core.ParameterNameDiscoverer;
+import spring.ls.util.ClassUtils;
 import spring.ls.util.StringUtils;
 
 public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements BeanFactory,BeanDefinitionRegistry{
-	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>(64);
+
+	/** Parent bean factory, for bean inheritance support */
+	private BeanFactory parentBeanFactory;
+	
+	/** 用于加载bean的类加载器 */
+	private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 	
 	/** 将parent合并后的beanDefinition */
 	private final Map<String, RootBeanDefinition> mergedBeanDefinitions = new HashMap<String, RootBeanDefinition>();
@@ -28,17 +33,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/** 自定义的类型转换器 */
 	private TypeConverter typeConverter;
 	
-	// ---
-	private static Map<String, Object> cacheBeans = new HashMap<String, Object>(4);
-	private static Map<String, Object> beans = new HashMap<String, Object>();
 	public AbstractBeanFactory(){
 		
-	}
-	
-	@Override
-	public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) throws Exception {
-		beanDefinitionMap.put(beanName, beanDefinition);
-		System.out.println("注册了bean："+beanName+"["+beanDefinition+"]");
 	}
 	
 	@Override
@@ -46,9 +42,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return doGetBean(alias, null);
 	}
 	
-	public Object doGetBean(String name, Object[] args) throws BeansException{
+	protected Object doGetBean(String name, final Object[] args) throws BeansException{
 		
-		final String beanName = cononicalName(name);
+		final String beanName = canonicalName(name);
 		
 		Object bean;
 		
@@ -69,12 +65,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					@Override
 					public Object getObject() throws BeansException {
 						
-						return createBean(beanName, mbd, null);
+						return createBean(beanName, mbd, args);
 					}
 
 				});
 				
 			}else if( mbd.isPrototype()){
+				
 				
 				
 			}else{
@@ -130,19 +127,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return mbd;
 	}
 	
-	public BeanDefinition getBeanDefinition(String beanName) throws BeansException{
-		BeanDefinition bd = this.beanDefinitionMap.get(beanName);
-		if(bd == null){
-			throw new BeansException("你要获取的"+beanName+"不存在!");
-		}
-		return bd;
-	}
-
 	public Object getObjectForBeanInstance(Object beanInstance, String name, String beanName, Object mbd) throws BeansException {
 		
 		//&name -> factory || &name -> bean || name -> bean || name -> factory || 
 		//判断获取的名称和bean实例是否对应
-		if( BeanFactoryUtil.isFactoryDeference(name) && !(beanInstance instanceof FactoryBean) ){
+		if( BeanFactoryUtils.isFactoryDereference(name) && !(beanInstance instanceof FactoryBean) ){
 			throw new BeansException("你要获取的bean不是一个factory");
 		}
 		
@@ -154,7 +143,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 //			return bean;
 //		}
 		//以上两句换为下面这句
-		if( !(beanInstance instanceof FactoryBean) || BeanFactoryUtil.isFactoryDeference(name)){
+		if( !(beanInstance instanceof FactoryBean) || BeanFactoryUtils.isFactoryDereference(name)){
 			return beanInstance;
 		}
 		
@@ -176,6 +165,18 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		return object;
 	}
 	
+	protected void clearMergedBeanDefinition(String beanName) {
+		this.mergedBeanDefinitions.remove(beanName);
+	}
+	
+	/**
+	 * 销毁单例bean
+	 * @param beanName
+	 */
+	public void destroySingleton(String beanName) {
+		
+	}
+	
 	public ParameterNameDiscoverer getParameterNameDiscoverer() {
 		return parameterNameDiscoverer;
 	}
@@ -183,6 +184,55 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	public TypeConverter getCustomTypeConverter() {
 		return this.typeConverter;
 	}
+	
+	public ClassLoader getBeanClassLoader() {
+		return beanClassLoader;
+	}
+
+	public void setBeanClassLoader(ClassLoader beanClassLoader) {
+		this.beanClassLoader = (beanClassLoader != null ? beanClassLoader : ClassUtils.getDefaultClassLoader());
+	}
+	
+	public void initBeanWrapper(BeanWrapperImpl bw) {
+		//TODO 
+	}
+
+	public BeanFactory getParentBeanFactory() {
+		return parentBeanFactory;
+	}
+	
+	@Override
+	public boolean containsBean(String name) {
+		String beanName = transformedBeanName(name);
+		if (containsSingleton(beanName) || containsBeanDefinition(beanName)) {
+			//return (!BeanFactoryUtils.isFactoryDereference(name) || isFactoryBean(name));
+			return !BeanFactoryUtils.isFactoryDereference(name);
+		}
+		// Not found -> check parent.
+		BeanFactory parentBeanFactory = getParentBeanFactory();
+		return (parentBeanFactory != null && parentBeanFactory.containsBean(originalBeanName(name)));
+	}
+	
+	/**
+	 * Determine the original bean name, resolving locally defined aliases to canonical names.
+	 * @param name the user-specified name
+	 * @return the original bean name
+	 */
+	protected String originalBeanName(String name) {
+		String beanName = transformedBeanName(name);
+		if (name.startsWith(FACTORY_BEAN_PREFIX)) {
+			beanName = FACTORY_BEAN_PREFIX + beanName;
+		}
+		return beanName;
+	}
+	
+	protected String transformedBeanName(String name) {
+		return canonicalName(BeanFactoryUtils.transformedBeanName(name));
+	}
+	
+	protected abstract boolean containsBeanDefinition(String beanName);
+	
+	protected abstract BeanDefinition getBeanDefinition(String beanName) throws BeansException;
 	
 	protected abstract Object createBean(String beanName, RootBeanDefinition mbd, Object[] args)
 			throws BeansException;

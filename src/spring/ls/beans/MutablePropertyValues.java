@@ -8,14 +8,14 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public class MutablePropertyValues implements PropertyValues,Serializable{
 
-	List<PropertyValue> propertyValues;
+	List<PropertyValue> propertyValueList;
 	
 	Set<String> processedProperties;
 	
 	private volatile boolean converted = false;
 	
 	public MutablePropertyValues() {
-		this.propertyValues = new ArrayList<PropertyValue>(0);
+		this.propertyValueList = new ArrayList<PropertyValue>(0);
 	}
 	
 	public MutablePropertyValues(PropertyValues original) {
@@ -23,24 +23,28 @@ public class MutablePropertyValues implements PropertyValues,Serializable{
 		// There is no replacement of existing property values.
 		if (original != null) {
 			PropertyValue[] pvs = original.getPropertyValues();
-			this.propertyValues = new ArrayList<PropertyValue>(pvs.length);
+			this.propertyValueList = new ArrayList<PropertyValue>(pvs.length);
 			for (PropertyValue pv : pvs) {
-				this.propertyValues.add(new PropertyValue(pv));
+				this.propertyValueList.add(new PropertyValue(pv));
 			}
 		}
 		else {
-			this.propertyValues = new ArrayList<PropertyValue>(0);
+			this.propertyValueList = new ArrayList<PropertyValue>(0);
 		}
+	}
+	
+	public MutablePropertyValues(List<PropertyValue> propertyValueList) {
+		this.propertyValueList = (propertyValueList != null ? propertyValueList : new ArrayList<PropertyValue>(0));
 	}
 
 	@Override
 	public PropertyValue[] getPropertyValues() {
-		return this.propertyValues.toArray(new PropertyValue[this.propertyValues.size()]);
+		return this.propertyValueList.toArray(new PropertyValue[this.propertyValueList.size()]);
 	}
 
 	@Override
 	public PropertyValue getPropertyValue(String propertyName) {
-		for(PropertyValue pv : this.propertyValues){
+		for(PropertyValue pv : this.propertyValueList){
 			if(pv.getName().equals(propertyName)){
 				return pv;
 			}
@@ -56,10 +60,56 @@ public class MutablePropertyValues implements PropertyValues,Serializable{
 
 	@Override
 	public boolean isEmpty() {
-		return this.processedProperties.isEmpty();
+		return this.propertyValueList.isEmpty();
 	}
 
-	public void addPropertyValue(PropertyValue pv) {
-		this.propertyValues.add(pv);
+	public MutablePropertyValues add(String propertyName, Object propertyValue) {
+		addPropertyValue(new PropertyValue(propertyName, propertyValue));
+		return this;
+	}
+	
+	public MutablePropertyValues addPropertyValue(PropertyValue pv) {
+		for(int i = 0; i < this.propertyValueList.size(); i++){
+			PropertyValue currentPv = this.propertyValueList.get(i);
+			if(currentPv.getName().equals(pv.getName())){
+				pv = mergeIfRequired(pv, currentPv);
+				setPropertyValueAt(pv, i);
+				return this;
+			}
+		}
+		this.propertyValueList.add(pv);
+		return this;
+	}
+	
+	private PropertyValue mergeIfRequired(PropertyValue newPv, PropertyValue currentPv) {
+		Object value = newPv.getValue();
+		if (value instanceof Mergeable) {
+			Mergeable mergeable = (Mergeable) value;
+			if (mergeable.isMergeEnabled()) {
+				Object merged = mergeable.merge(currentPv.getValue());
+				return new PropertyValue(newPv.getName(), merged);
+			}
+		}
+		return newPv;
+	}
+	
+	/**
+	 * Modify a PropertyValue object held in this object.
+	 * Indexed from 0.
+	 */
+	public void setPropertyValueAt(PropertyValue pv, int i) {
+		this.propertyValueList.set(i, pv);
+	}
+
+	public boolean isConverted() {
+		return converted;
+	}
+
+	public List<PropertyValue> getPropertyValueList() {
+		return propertyValueList;
+	}
+
+	public void setConverted() {
+		this.converted = true;
 	}
 }

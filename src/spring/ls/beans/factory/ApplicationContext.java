@@ -1,9 +1,9 @@
 package spring.ls.beans.factory;
 
-import spring.ls.beans.factory.support.AbstractAutowireCapableBeanFactory;
+import spring.ls.beans.factory.support.DefaultListableBeanFactory;
 import spring.ls.core.io.ClassPathResource;
 
-public class ApplicationContext extends AbstractAutowireCapableBeanFactory implements BeanFactory{
+public class ApplicationContext extends DefaultListableBeanFactory implements BeanFactory{
 
 	private AnnotationBeanFactory annotationBeanFactory;
 	private XmlBeanFactory xmlBeanFactory;

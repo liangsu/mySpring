@@ -15,9 +15,13 @@
 		<constructor-arg index="0" value="张三" />
 		<constructor-arg index="1" value="22" />
 		<constructor-arg index="2" value="12345@qq.com" />
-		<constructor-arg index="3" ref="student" />
+		<!-- <constructor-arg index="3" ref="student" /> -->
 	</bean>
 	
-	<bean name="student" class="spring.ls.test.Student" scope="singleton"></bean>
+	<bean name="student" class="spring.ls.test.Student" scope="singleton">
+		<property name="grade" value="7" />
+		<property name="name" value="王小二" />
+		<property name="user" ref="zhangsan" />
+	</bean>
 	
 </beans>

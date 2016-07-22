@@ -28,10 +28,11 @@ public class ConstructorResolver {
 		this.beanFactory = beanFactory;
 	}
 
-	public Object autowireConstructor(final String beanName, final RootBeanDefinition mbd,
+	public BeanWrapper autowireConstructor(final String beanName, final RootBeanDefinition mbd,
 			Constructor<?>[] chosenCtors, final Object[] explicitArgs) {
 		
 		BeanWrapperImpl bw = new BeanWrapperImpl();
+		this.beanFactory.initBeanWrapper(bw);
 		
 		Constructor<?> constructorToUse = null;
 		ArgumentsHolder argsHolderToUse = null;
@@ -176,8 +177,9 @@ public class ConstructorResolver {
 		
 		//创建实例
 		Object beanInstance = beanFactory.getInstantiationStrategy().instantiate(mbd, beanName, beanFactory, constructorToUse, argsToUse);
+		bw.setWrappedInstance(beanInstance);
 		
-		return beanInstance;
+		return bw;
 	}
 
 	/**
